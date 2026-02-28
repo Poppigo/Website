@@ -255,6 +255,7 @@ export type Database = {
           items: Json | null
           mobile_no: string | null
           order_number: string
+          payment_method: string
           shipping_address: Json | null
           status: string
           updated_at: string
@@ -269,6 +270,7 @@ export type Database = {
           items?: Json | null
           mobile_no?: string | null
           order_number: string
+          payment_method?: string
           shipping_address?: Json | null
           status?: string
           updated_at?: string
@@ -283,6 +285,7 @@ export type Database = {
           items?: Json | null
           mobile_no?: string | null
           order_number?: string
+          payment_method?: string
           shipping_address?: Json | null
           status?: string
           updated_at?: string

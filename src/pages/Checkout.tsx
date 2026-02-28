@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Loader2, ChevronRight, Lock, Tag, X } from "lucide-react";
+import { Loader2, ChevronRight, Lock, Tag, X, Banknote, CreditCard } from "lucide-react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
@@ -47,6 +47,7 @@ const Checkout = () => {
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; type: string; value: number } | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"online" | "cod">("online");
   const [form, setForm] = useState<CheckoutForm>({
     firstName: "",
     lastName: "",
@@ -173,97 +174,125 @@ const Checkout = () => {
         size: item.size || null,
       }));
 
-      // 1. Create Razorpay order
-      const { data: orderData, error: orderError } = await supabase.functions.invoke(
-        "create-razorpay-order",
-        {
-          body: {
-            items: cartItems,
-            customerName: `${form.firstName} ${form.lastName}`,
-            customerEmail: form.email,
-            shippingAddress: {
-              street: form.streetAddress,
-              city: form.city,
-              state: form.state,
-              postcode: form.postcode,
-              country: form.country,
+      if (paymentMethod === "cod") {
+        // COD flow - create order directly without payment
+        const { data: codData, error: codError } = await supabase.functions.invoke(
+          "create-cod-order",
+          {
+            body: {
+              items: cartItems,
+              customerName: `${form.firstName} ${form.lastName}`,
+              customerEmail: form.email,
+              shippingAddress: {
+                street: form.streetAddress,
+                city: form.city,
+                state: form.state,
+                postcode: form.postcode,
+                country: form.country,
+              },
+              mobileNo: form.phone,
+              userId: user?.id || null,
+              couponCode: appliedCoupon?.code || null,
             },
-            mobileNo: form.phone,
-            userId: user?.id || null,
-            amount: finalTotal,
-          },
-        }
-      );
-
-      if (orderError) throw new Error(orderError.message);
-      if (orderData?.error) throw new Error(orderData.error);
-
-      // 2. Open Razorpay checkout
-      const options = {
-        key: orderData.key_id,
-        amount: orderData.amount,
-        currency: orderData.currency,
-        name: "PoppiGo",
-        description: "Order Payment",
-        order_id: orderData.order_id,
-        prefill: {
-          name: `${form.firstName} ${form.lastName}`,
-          email: form.email,
-          contact: form.phone,
-        },
-        theme: { color: "#1a1a2e" },
-        handler: async (response: any) => {
-          // 3. Verify payment on backend
-          try {
-            const { data: verifyData, error: verifyError } = await supabase.functions.invoke(
-              "verify-razorpay-payment",
-              {
-                body: {
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_signature: response.razorpay_signature,
-                  items: cartItems,
-                  customerName: `${form.firstName} ${form.lastName}`,
-                  customerEmail: form.email,
-                  shippingAddress: {
-                    street: form.streetAddress,
-                    city: form.city,
-                    state: form.state,
-                    postcode: form.postcode,
-                    country: form.country,
-                  },
-                  mobileNo: form.phone,
-                  userId: user?.id || null,
-                  amount: finalTotal,
-                  couponCode: appliedCoupon?.code || null,
-                },
-              }
-            );
-
-            if (verifyError) throw new Error(verifyError.message);
-            if (verifyData?.error) throw new Error(verifyData.error);
-
-            clearCart();
-            navigate(`/order-success?order_number=${verifyData.order_number}`);
-          } catch (err: any) {
-            console.error("Payment verification error:", err);
-            toast.error("Payment verification failed. Contact support.");
           }
-        },
-        modal: {
-          ondismiss: () => {
-            setProcessing(false);
-            toast.error("Payment cancelled");
-          },
-        },
-      };
+        );
 
-      const rzp = new window.Razorpay(options);
-      rzp.on("payment.failed", (response: any) => {
-        setProcessing(false);
-        toast.error(response.error.description || "Payment failed");
-      });
-      rzp.open();
+        if (codError) throw new Error(codError.message);
+        if (codData?.error) throw new Error(codData.error);
+
+        clearCart();
+        navigate(`/order-success?order_number=${codData.order_number}`);
+      } else {
+        // Online payment flow via Razorpay
+        const { data: orderData, error: orderError } = await supabase.functions.invoke(
+          "create-razorpay-order",
+          {
+            body: {
+              items: cartItems,
+              customerName: `${form.firstName} ${form.lastName}`,
+              customerEmail: form.email,
+              shippingAddress: {
+                street: form.streetAddress,
+                city: form.city,
+                state: form.state,
+                postcode: form.postcode,
+                country: form.country,
+              },
+              mobileNo: form.phone,
+              userId: user?.id || null,
+              amount: finalTotal,
+            },
+          }
+        );
+
+        if (orderError) throw new Error(orderError.message);
+        if (orderData?.error) throw new Error(orderData.error);
+
+        const options = {
+          key: orderData.key_id,
+          amount: orderData.amount,
+          currency: orderData.currency,
+          name: "PoppiGo",
+          description: "Order Payment",
+          order_id: orderData.order_id,
+          prefill: {
+            name: `${form.firstName} ${form.lastName}`,
+            email: form.email,
+            contact: form.phone,
+          },
+          theme: { color: "#1a1a2e" },
+          handler: async (response: any) => {
+            try {
+              const { data: verifyData, error: verifyError } = await supabase.functions.invoke(
+                "verify-razorpay-payment",
+                {
+                  body: {
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                    items: cartItems,
+                    customerName: `${form.firstName} ${form.lastName}`,
+                    customerEmail: form.email,
+                    shippingAddress: {
+                      street: form.streetAddress,
+                      city: form.city,
+                      state: form.state,
+                      postcode: form.postcode,
+                      country: form.country,
+                    },
+                    mobileNo: form.phone,
+                    userId: user?.id || null,
+                    amount: finalTotal,
+                    couponCode: appliedCoupon?.code || null,
+                  },
+                }
+              );
+
+              if (verifyError) throw new Error(verifyError.message);
+              if (verifyData?.error) throw new Error(verifyData.error);
+
+              clearCart();
+              navigate(`/order-success?order_number=${verifyData.order_number}`);
+            } catch (err: any) {
+              console.error("Payment verification error:", err);
+              toast.error("Payment verification failed. Contact support.");
+            }
+          },
+          modal: {
+            ondismiss: () => {
+              setProcessing(false);
+              toast.error("Payment cancelled");
+            },
+          },
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.on("payment.failed", (response: any) => {
+          setProcessing(false);
+          toast.error(response.error.description || "Payment failed");
+        });
+        rzp.open();
+      }
     } catch (err: any) {
       console.error("Checkout error:", err);
       toast.error(err.message || "Something went wrong");
@@ -434,6 +463,37 @@ const Checkout = () => {
                   )}
                 </div>
 
+                {/* Payment Method Selector */}
+                <div className="border-t border-border pt-4">
+                  <h3 className="text-sm font-semibold text-foreground mb-3">Payment Method</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("online")}
+                      className={`flex items-center gap-2 px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                        paymentMethod === "online"
+                          ? "border-primary bg-primary/5 text-foreground"
+                          : "border-border text-muted-foreground hover:border-muted-foreground/40"
+                      }`}
+                    >
+                      <CreditCard size={18} />
+                      <span>Pay Online</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("cod")}
+                      className={`flex items-center gap-2 px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                        paymentMethod === "cod"
+                          ? "border-primary bg-primary/5 text-foreground"
+                          : "border-border text-muted-foreground hover:border-muted-foreground/40"
+                      }`}
+                    >
+                      <Banknote size={18} />
+                      <span>Cash on Delivery</span>
+                    </button>
+                  </div>
+                </div>
+
                 <div className="border-t border-border pt-4 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
@@ -467,14 +527,16 @@ const Checkout = () => {
                     </>
                   ) : (
                     <>
-                      <Lock size={18} />
-                      Place Order
+                      {paymentMethod === "cod" ? <Banknote size={18} /> : <Lock size={18} />}
+                      {paymentMethod === "cod" ? "Place COD Order" : "Place Order"}
                     </>
                   )}
                 </button>
 
                 <p className="text-xs text-muted-foreground text-center mt-3">
-                  Secured by Razorpay. Your payment information is encrypted.
+                  {paymentMethod === "cod"
+                    ? "Pay cash when your order is delivered."
+                    : "Secured by Razorpay. Your payment information is encrypted."}
                 </p>
               </motion.div>
             </div>

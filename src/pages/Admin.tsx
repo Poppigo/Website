@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings,
-  TrendingUp, DollarSign, LogOut, Menu, X, ChevronRight, Plus, Pencil, Trash2, Upload, Loader2, Tag, Send,
+  TrendingUp, DollarSign, LogOut, Menu, X, ChevronRight, Plus, Pencil, Trash2, Upload, Loader2, Tag, Send, Banknote,
 } from "lucide-react";
 import AdminCampaigns from "@/components/AdminCampaigns";
 import { useAuth } from "@/context/AuthContext";
@@ -45,7 +45,7 @@ const calcDiscount = (price: number, original: number | null) =>
 interface Order {
   id: string; order_number: string; customer_name: string; customer_email: string;
   amount: number; status: string; created_at: string; items: any;
-  shipping_address: any; mobile_no: string | null;
+  shipping_address: any; mobile_no: string | null; payment_method: string;
 }
 interface Customer {
   id: string; name: string; email: string; total_orders: number | null;
@@ -383,8 +383,8 @@ const Admin = () => {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead></TableHead><TableHead>Order</TableHead><TableHead>Customer</TableHead><TableHead>Email</TableHead>
-                            <TableHead>Mobile</TableHead><TableHead>Date</TableHead><TableHead>Amount</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead>
+                             <TableHead></TableHead><TableHead>Order</TableHead><TableHead>Customer</TableHead><TableHead>Email</TableHead>
+                             <TableHead>Mobile</TableHead><TableHead>Date</TableHead><TableHead>Amount</TableHead><TableHead>Payment</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -402,12 +402,37 @@ const Admin = () => {
                                   <TableCell className="text-muted-foreground">{order.mobile_no || '—'}</TableCell>
                                   <TableCell className="text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</TableCell>
                                   <TableCell className="font-medium">₹{Number(order.amount).toLocaleString()}</TableCell>
+                                  <TableCell>
+                                    {order.payment_method === "cod" ? (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
+                                        <Banknote size={12} /> COD
+                                      </span>
+                                    ) : (
+                                      <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">Online</span>
+                                    )}
+                                  </TableCell>
                                   <TableCell><span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${statusColor[order.status] || "bg-muted text-muted-foreground"}`}>{order.status}</span></TableCell>
                                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                                     <select value={order.status} onChange={async (e) => {
                                       const newStatus = e.target.value;
                                       const { error } = await supabase.from("orders").update({ status: newStatus }).eq("id", order.id);
-                                      if (error) { toast.error("Failed to update status"); } else { toast.success(`Order ${order.order_number} → ${newStatus}`); fetchData(); }
+                                      if (error) { toast.error("Failed to update status"); return; }
+                                      // For COD orders marked as Delivered, update customer metrics
+                                      if (newStatus === "Delivered" && order.payment_method === "cod") {
+                                        try {
+                                          const { data: codResult, error: codError } = await supabase.functions.invoke("complete-cod-order", {
+                                            body: { orderId: order.id },
+                                          });
+                                          if (codError || codResult?.error) {
+                                            console.error("COD completion error:", codError || codResult?.error);
+                                            toast.error("Order status updated but failed to update customer metrics");
+                                          }
+                                        } catch (err) {
+                                          console.error("COD completion error:", err);
+                                        }
+                                      }
+                                      toast.success(`Order ${order.order_number} → ${newStatus}`);
+                                      fetchData();
                                     }} className="bg-card border border-border rounded px-2 py-1 text-xs font-medium text-foreground">
                                       <option value="Processing">Processing</option>
                                       <option value="Shipped">Shipped</option>
@@ -418,7 +443,7 @@ const Admin = () => {
                                 </TableRow>
                                 {isExpanded && (
                                   <TableRow key={`${order.id}-detail`}>
-                                    <TableCell colSpan={9} className="bg-muted/30 p-4">
+                                    <TableCell colSpan={10} className="bg-muted/30 p-4">
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                           <h4 className="font-semibold text-sm mb-2">Items Ordered</h4>
