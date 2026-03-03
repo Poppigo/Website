@@ -1,40 +1,76 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, Menu, X, User, LogOut, Package } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ShoppingBag, Menu, X, User, LogOut, Package, ArrowUpRight } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import logo from "@/assets/poppigo-logo-cropped.svg";
 
 const navLinks = [
-  { label: "Shop The Stash", href: "/shop" },
-  { label: "What's Poppin", href: "/#features" },
-  { label: "Tea On Us", href: "/#story" },
-  { label: "Facts Only", href: "/#faq" },
-  { label: "Your Faves", href: "/#products" },
+  { label: "Shop The Stash", href: "/shop", section: null },
+  { label: "What's Poppin'", href: null, section: "features" },
+  { label: "Tea On Us", href: null, section: "story" },
+  { label: "Facts Only", href: null, section: "faq" },
+  { label: "Hit Us Up", href: null, section: "footer" },
 ];
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { totalItems } = useCart();
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const scrollToSection = (sectionId: string) => {
+    const el = document.getElementById(sectionId);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleSectionClick = (sectionId: string) => {
+    setMobileOpen(false);
+    if (location.pathname === "/") {
+      scrollToSection(sectionId);
+    } else {
+      navigate("/");
+      setTimeout(() => scrollToSection(sectionId), 300);
+    }
+  };
+
+  const handleShopClick = () => {
+    setMobileOpen(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    navigate("/shop");
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-primary/95 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="font-display text-2xl font-bold text-primary-foreground tracking-tight">
-          PoppiGo
+        <Link to="/" className="flex items-center">
+          <img src={logo} alt="PoppiGo" className="h-8 md:h-10 w-auto" />
         </Link>
 
         <div className="hidden lg:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <Link
-              key={link.label}
-              to={link.href}
-              className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) =>
+            link.href ? (
+              <button
+                key={link.label}
+                onClick={handleShopClick}
+                className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+              >
+                {link.label}
+              </button>
+            ) : (
+              <button
+                key={link.label}
+                onClick={() => handleSectionClick(link.section!)}
+                className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+              >
+                {link.label}
+              </button>
+            )
+          )}
         </div>
 
         <div className="flex items-center gap-3">
@@ -74,13 +110,15 @@ const Navbar = () => {
             )}
           </Link>
 
-          <Link
-            to="/shop"
+          <button
+            onClick={handleShopClick}
             className="hidden sm:inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-5 py-2.5 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
           >
-            Grab Yours
-            <span className="w-5 h-5 bg-secondary-foreground rounded-full inline-block" />
-          </Link>
+            Shop Now
+            <span className="w-5 h-5 bg-white text-secondary rounded-full inline-flex items-center justify-center">
+              <ArrowUpRight className="w-3 h-3" />
+            </span>
+          </button>
           <button
             className="lg:hidden text-primary-foreground"
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -99,16 +137,25 @@ const Navbar = () => {
             className="lg:hidden overflow-hidden bg-primary border-t border-primary-foreground/10"
           >
             <div className="px-6 py-6 flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.label}
-                  to={link.href}
-                  className="text-primary-foreground font-medium text-lg"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {navLinks.map((link) =>
+                link.href ? (
+                  <button
+                    key={link.label}
+                    onClick={handleShopClick}
+                    className="text-primary-foreground font-medium text-lg text-left"
+                  >
+                    {link.label}
+                  </button>
+                ) : (
+                  <button
+                    key={link.label}
+                    onClick={() => handleSectionClick(link.section!)}
+                    className="text-primary-foreground font-medium text-lg text-left"
+                  >
+                    {link.label}
+                  </button>
+                )
+              )}
               {user ? (
                 <>
                   <Link
@@ -134,13 +181,12 @@ const Navbar = () => {
                   Sign In
                 </Link>
               )}
-              <Link
-                to="/shop"
+              <button
+                onClick={handleShopClick}
                 className="mt-2 inline-flex items-center justify-center gap-2 bg-secondary text-secondary-foreground px-5 py-3 rounded-full text-sm font-semibold"
-                onClick={() => setMobileOpen(false)}
               >
-                Grab Yours
-              </Link>
+                Shop Now
+              </button>
             </div>
           </motion.div>
         )}

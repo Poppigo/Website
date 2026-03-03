@@ -126,7 +126,7 @@ const LeadGenPopup = () => {
                 {errors.mobile_no && <p className="text-xs text-destructive mt-1">{errors.mobile_no}</p>}
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Submitting..." : "Get Early Access"}
+                {loading ? "Submitting..." : "Submit"}
               </Button>
             </form>
           </>

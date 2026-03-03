@@ -30,13 +30,17 @@ const faqs = [
     q: "What size should I buy?",
     a: "Made in India. Built for every body. S-M fits 25″–35″ waist, L-XL fits 35″–45″, and 2XL-3XL fits 45″–55″. Our 2.5x stretch waistband moves with you – fits like a hug, not a squeeze.",
   },
+  {
+    q: "Where can I buy it? And in case of returns?",
+    a: "PoppiGo is live on Amazon—and we're rolling into pharmacies and supermarkets near you soon. Since PoppiGo is a hygiene product, we can't accept returns. But if something's off, email us at hello@poppigo.com and we'll make it right. Promise.",
+  },
 ];
 
 const FAQ = () => {
   return (
-    <section id="faq" className="bg-background py-20 md:py-28">
+    <section id="faq" className="bg-background py-14 md:py-24">
       <div className="max-w-3xl mx-auto px-6">
-        <div className="text-center mb-14">
+        <div className="text-center mb-10 md:mb-14">
           <span className="text-coral font-display font-semibold text-sm uppercase tracking-widest">
             Have a question?
           </span>

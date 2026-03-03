@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import productSM from "@/assets/product-sm.png";
 import productLXL from "@/assets/product-lxl.jpg";
 import productPack from "@/assets/product-pack-1.png";
+import whyWeBuild from "@/assets/Why-we-build-1.jpg";
 
 const products = [
   {
-    name: "Ultra-Slim Disposable Period Panty (S-M)",
+    name: "Ultra-Slim Period Panty (S-M)",
     pieces: "6 PCs",
     price: "₹339",
     originalPrice: "₹399",
@@ -36,9 +37,9 @@ const products = [
 
 const Products = () => {
   return (
-    <section id="products" className="bg-peach py-20 md:py-28">
+    <section id="products" className="bg-peach py-14 md:py-24">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-14">
+        <div className="text-center mb-10 md:mb-14">
           <span className="text-coral font-display font-semibold text-sm uppercase tracking-widest">
             Your Faves, Our Hits
           </span>
@@ -50,7 +51,7 @@ const Products = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {products.map((product, i) => (
             <motion.a
               key={product.name}
@@ -63,14 +64,17 @@ const Products = () => {
               transition={{ duration: 0.5, delay: i * 0.1 }}
               className="group bg-card rounded-3xl overflow-hidden border border-border hover:shadow-xl hover:shadow-secondary/10 transition-all duration-300 block"
             >
-              <div className="relative bg-accent p-8 flex items-center justify-center aspect-square overflow-hidden">
+              <div className="relative bg-accent p-5 flex items-center justify-center aspect-[4/3] overflow-hidden">
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-3/4 h-auto object-contain group-hover:scale-105 transition-transform duration-500"
+                  className="w-1/2 h-auto object-contain group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute top-4 left-4 bg-coral text-card px-3 py-1 rounded-full text-xs font-bold">
                   {product.discount}
+                </div>
+                <div className="absolute bottom-3 left-3 right-3 bg-primary/90 text-primary-foreground px-3 py-1.5 rounded-xl text-[11px] font-bold text-center tracking-wide">
+                  USE CODE: POPPIGO
                 </div>
               </div>
               <div className="p-6">

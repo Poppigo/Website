@@ -96,7 +96,7 @@ const ReviewSection = ({ productId }: ReviewSectionProps) => {
       ) : (
         <>
           {/* Summary */}
-          <div className="bg-card rounded-2xl border border-border p-6 md:p-8 mb-8">
+          <div className="bg-card rounded-2xl border border-border p-6 md:p-8 mb-8 max-w-lg">
             <div className="flex flex-col sm:flex-row gap-8">
               <div className="text-center sm:text-left shrink-0">
                 <p className="font-display text-5xl font-bold text-foreground">

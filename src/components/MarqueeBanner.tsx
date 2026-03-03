@@ -1,7 +1,8 @@
 const items = [
-  "Available in 3 Sizes - S to 3XL",
-  "5x Slimmer, 10x Comfort",
-  "Fast Absorbing Japanese-Tech",
+  "India's Slimmest Core",
+  "Japanese tech engineered for Blood",
+  "No Bulges, No Leaks",
+  "Designed for Active Lifestyles",
 ];
 
 const MarqueeBanner = () => {
