@@ -111,6 +111,14 @@
     animation: marquee 20s linear infinite;
   }
 
+  .scrolling-marquee-slow {
+    animation: marquee 45s linear infinite;
+  }
+
+  .scrolling-marquee-slow-reverse {
+    animation: marquee-reverse 50s linear infinite;
+  }
+
   @keyframes marquee {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }

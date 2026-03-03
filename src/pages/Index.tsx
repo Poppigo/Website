@@ -1,9 +1,10 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import MarqueeBanner from "@/components/MarqueeBanner";
 import LaunchSale from "@/components/LaunchSale";
+import MarqueeBanner from "@/components/MarqueeBanner";
 import Features from "@/components/Features";
 import BrandStory from "@/components/BrandStory";
+import HomepageTestimonials from "@/components/HomepageTestimonials";
 import Stats from "@/components/Stats";
 import FAQ from "@/components/FAQ";
 import Products from "@/components/Products";
@@ -16,10 +17,11 @@ const Index = () => {
       <LeadGenPopup />
       <Navbar />
       <Hero />
-      <MarqueeBanner />
       <LaunchSale />
+      <MarqueeBanner />
       <Features />
       <BrandStory />
+      <HomepageTestimonials />
       <Stats />
       <FAQ />
       <Products />

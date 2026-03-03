@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Minus, Plus, ShoppingBag, ChevronRight, Shield, Leaf, Users } from "lucide-react";
+import { Minus, Plus, ShoppingBag, ChevronRight, Shield, Leaf, Users, Check } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -50,6 +50,18 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
+  const [isHovering, setIsHovering] = useState(false);
+  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+  const imgContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = imgContainerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setZoomPos({
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100,
+    });
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -129,18 +141,31 @@ const ProductDetail = () => {
           </nav>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Product Image */}
+            {/* Product Image with hover zoom */}
             <motion.div
+              ref={imgContainerRef}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
-              className="bg-card rounded-3xl border border-border p-8 flex items-center justify-center aspect-square"
+              className="relative bg-card rounded-3xl border border-border overflow-hidden aspect-square cursor-crosshair"
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+              onMouseMove={handleMouseMove}
             >
               <img
                 src={image}
                 alt={product.name}
-                className="w-3/4 h-auto object-contain"
+                className="w-full h-full object-contain p-8 transition-transform duration-100 ease-out will-change-transform"
+                style={isHovering ? {
+                  transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+                  transform: "scale(2.2)",
+                } : { transform: "scale(1)" }}
               />
+              {!isHovering && (
+                <div className="absolute bottom-4 right-4 bg-black/20 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm font-medium">
+                  Hover to zoom
+                </div>
+              )}
             </motion.div>
 
             {/* Product Info */}
@@ -273,25 +298,33 @@ const ProductDetail = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-16 bg-peach rounded-3xl p-8 md:p-12"
+            className="mt-16"
           >
             <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground text-center mb-8">
               PoppiGo vs Others
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="rounded-3xl overflow-hidden border border-border">
+              {/* Header */}
+              <div className="grid grid-cols-3 text-center">
+                <div className="bg-muted p-4 font-display font-bold text-muted-foreground text-sm uppercase tracking-wide">Feature</div>
+                <div className="bg-primary p-4 font-display font-bold text-primary-foreground text-sm uppercase tracking-wide">PoppiGo ✦</div>
+                <div className="bg-muted p-4 font-display font-bold text-muted-foreground text-sm uppercase tracking-wide">Others</div>
+              </div>
+              {/* Rows */}
               {[
-                "Super thin – just 2mm!",
-                "Lasts up to 12 hours – no leaks, no stress",
-                "Japanese Gel-Tech Core – locks liquid instantly",
-                "Made for blood, sweat & pee – perfect for active girls",
-                "Soft, slim fit – feels like regular underwear",
-                "Wear, toss & go! No washing needed",
-              ].map((feature, i) => (
-                <div
-                  key={i}
-                  className="bg-card rounded-2xl border border-border p-5 text-sm font-medium text-foreground"
-                >
-                  ✓ {feature}
+                ["Thickness", "Just 2mm slim", "Bulky & visible"],
+                ["Protection", "Up to 12 hours", "4–6 hours max"],
+                ["Core Tech", "Japanese Gel-Tech", "Basic cotton"],
+                ["Use case", "Blood, sweat & pee", "Blood only"],
+                ["Feel", "Like regular underwear", "Diaper-like"],
+                ["Disposal", "Wear, toss & go!", "Needs washing"],
+              ].map(([feature, poppi, other], i) => (
+                <div key={i} className={`grid grid-cols-3 text-center text-sm ${i % 2 === 0 ? "bg-card" : "bg-background"}`}>
+                  <div className="p-4 font-semibold text-foreground border-r border-border">{feature}</div>
+                  <div className="p-4 text-primary-foreground bg-primary/10 border-r border-border flex items-center justify-center gap-1.5 font-medium text-foreground">
+                    <Check size={14} className="text-primary shrink-0" />{poppi}
+                  </div>
+                  <div className="p-4 text-muted-foreground">{other}</div>
                 </div>
               ))}
             </div>
