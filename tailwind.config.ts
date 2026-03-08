@@ -14,8 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Space Grotesk", "sans-serif"],
-        body: ["DM Sans", "sans-serif"],
+        display: ["LC Mogi", "sans-serif"],
+        body: ["Poppins", "sans-serif"],
+        accent: ["Khalila", "cursive"],
       },
       colors: {
         border: "hsl(var(--border))",

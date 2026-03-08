@@ -11,3 +11,12 @@ verify_jwt = false
 
 [functions.verify-razorpay-payment]
 verify_jwt = false
+
+[functions.create-cod-order]
+verify_jwt = false
+
+[functions.complete-cod-order]
+verify_jwt = false
+
+[functions.opt-out]
+verify_jwt = false

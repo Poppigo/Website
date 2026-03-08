@@ -1,6 +1,16 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
+/** Normalise an Indian mobile number to E.164 (+91XXXXXXXXXX). */
+function normalizePhone(raw: string): string {
+  if (!raw) return raw;
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length === 10) return `+91${digits}`;
+  if (digits.length === 11 && digits.startsWith("0")) return `+91${digits.slice(1)}`;
+  if (digits.length === 12 && digits.startsWith("91")) return `+${digits}`;
+  return `+${digits}`;
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -33,6 +43,29 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
+
+    // ── Rate limiting ─────────────────────────────────────────────
+    // Max 3 COD orders per email per 24 hours
+    const RATE_LIMIT = 3;
+    const WINDOW_HOURS = 24;
+    const windowStart = new Date(Date.now() - WINDOW_HOURS * 60 * 60 * 1000).toISOString();
+
+    const { count: recentCount } = await supabaseAdmin
+      .from("orders")
+      .select("id", { count: "exact", head: true })
+      .eq("customer_email", customerEmail.toLowerCase().trim())
+      .eq("payment_method", "cod")
+      .gte("created_at", windowStart);
+
+    if ((recentCount ?? 0) >= RATE_LIMIT) {
+      return new Response(
+        JSON.stringify({
+          error: `Too many COD orders. Maximum ${RATE_LIMIT} COD orders allowed per ${WINDOW_HOURS} hours. Please try again later or choose online payment.`,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 429 }
+      );
+    }
+    // ─────────────────────────────────────────────────────────────
 
     // SERVER-SIDE price recalculation
     const productIds = items.map((i: any) => i.product_id).filter(Boolean);
@@ -89,7 +122,7 @@ serve(async (req) => {
       payment_method: "cod",
       items,
       shipping_address: shippingAddress || {},
-      mobile_no: mobileNo || null,
+      mobile_no: mobileNo ? normalizePhone(mobileNo) : null,
       user_id: userId || null,
     });
 

@@ -1,8 +1,20 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /admin
+Disallow: /checkout
+Disallow: /cart
+Disallow: /order-success
+Disallow: /my-orders
+Disallow: /reset-password
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin
+Disallow: /checkout
+Disallow: /cart
+Disallow: /order-success
+Disallow: /my-orders
+Disallow: /reset-password
 
 User-agent: Twitterbot
 Allow: /
@@ -12,3 +24,11 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /checkout
+Disallow: /cart
+Disallow: /order-success
+Disallow: /my-orders
+Disallow: /reset-password
+
+Sitemap: https://poppigo.co/sitemap.xml

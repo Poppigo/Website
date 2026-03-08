@@ -39,12 +39,6 @@ serve(async (req) => {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      items,
-      customerName,
-      customerEmail,
-      shippingAddress,
-      mobileNo,
-      userId,
       couponCode,
     } = await req.json();
 
@@ -52,6 +46,7 @@ serve(async (req) => {
       throw new Error("Missing payment verification parameters");
     }
 
+    // ── 1. Verify Razorpay signature ─────────────────────────────
     const keySecret = Deno.env.get("RAZORPAY_KEY_SECRET") || "";
     const isValid = await verifySignature(
       razorpay_order_id,
@@ -64,86 +59,46 @@ serve(async (req) => {
       throw new Error("Payment verification failed - invalid signature");
     }
 
-    // Use service role to bypass RLS
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // SERVER-SIDE price recalculation - never trust client amount
-    const productIds = items.map((i: any) => i.product_id).filter(Boolean);
-    const { data: products, error: productsError } = await supabaseAdmin
-      .from("products")
-      .select("id, price")
-      .in("id", productIds);
+    // ── 2. Look up the Pending order created at checkout ─────────
+    // order_number was set to ORD-{razorpay_order_id suffix} in create-razorpay-order
+    const orderNumber = `ORD-${razorpay_order_id.slice(-8).toUpperCase()}`;
 
-    if (productsError || !products) {
-      throw new Error("Failed to verify product prices");
-    }
-
-    const productMap = new Map(products.map((p: any) => [p.id, p]));
-    let serverTotal = 0;
-    for (const item of items) {
-      const product = productMap.get(item.product_id);
-      if (!product) throw new Error(`Product not found: ${item.product_id}`);
-      serverTotal += product.price * item.quantity;
-    }
-
-    // Apply coupon discount server-side
-    let discount = 0;
-    if (couponCode) {
-      const { data: coupon } = await supabaseAdmin
-        .from("coupons")
-        .select("*")
-        .eq("code", couponCode)
-        .eq("is_active", true)
-        .single();
-
-      if (coupon) {
-        if (coupon.type === "percentage") {
-          discount = Math.round(serverTotal * Number(coupon.value) / 100);
-        } else {
-          discount = Math.min(Number(coupon.value), serverTotal);
-        }
-      }
-    }
-
-    const finalAmount = serverTotal - discount;
-
-    const orderNumber = `ORD-${razorpay_payment_id.slice(-8).toUpperCase()}`;
-
-    // Check idempotency
-    const { data: existingOrder } = await supabaseAdmin
+    const { data: pendingOrder, error: lookupError } = await supabaseAdmin
       .from("orders")
-      .select("id, order_number")
+      .select("*")
       .eq("order_number", orderNumber)
       .maybeSingle();
 
-    if (existingOrder) {
+    if (lookupError) throw new Error("Failed to look up order");
+
+    // ── 3. Idempotency: already processed ────────────────────────
+    if (pendingOrder && pendingOrder.status === "Processing") {
       return new Response(
-        JSON.stringify({ success: true, order_number: existingOrder.order_number, already_processed: true }),
+        JSON.stringify({ success: true, order_number: pendingOrder.order_number, already_processed: true }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }
 
-    // 1. Create order with server-verified amount
-    const { error: orderError } = await supabaseAdmin.from("orders").insert({
-      order_number: orderNumber,
-      customer_name: customerName,
-      customer_email: customerEmail,
-      amount: finalAmount,
-      status: "Processing",
-      items,
-      shipping_address: shippingAddress || {},
-      mobile_no: mobileNo || null,
-      user_id: userId || null,
-    });
-    if (orderError) {
-      console.error("Order insert error:", orderError);
-      throw new Error("Failed to create order");
+    if (!pendingOrder || pendingOrder.status !== "Pending") {
+      // Fallback should never happen in normal flow
+      throw new Error("Pending order not found or already in an unexpected state");
     }
 
-    // 2. Update product stock
+    // ── 4. Update order status → Processing ──────────────────────
+    const { error: updateError } = await supabaseAdmin
+      .from("orders")
+      .update({ status: "Processing" })
+      .eq("order_number", orderNumber);
+
+    if (updateError) throw new Error("Failed to confirm order");
+
+    // ── 5. Update product stock ────────────────────────────────
+    const items = Array.isArray(pendingOrder.items) ? pendingOrder.items : [];
     for (const item of items) {
       if (item.product_id) {
         const { data: product } = await supabaseAdmin
@@ -162,12 +117,14 @@ serve(async (req) => {
       }
     }
 
-    // 3. Upsert customer
+    // ── 6. Upsert customer metrics ────────────────────────────────
     const { data: existingCustomer } = await supabaseAdmin
       .from("customers")
       .select("*")
-      .eq("email", customerEmail)
+      .eq("email", pendingOrder.customer_email)
       .maybeSingle();
+
+    const finalAmount = Number(pendingOrder.amount);
 
     if (existingCustomer) {
       await supabaseAdmin
@@ -175,23 +132,23 @@ serve(async (req) => {
         .update({
           total_orders: (existingCustomer.total_orders || 0) + 1,
           total_spent: (Number(existingCustomer.total_spent) || 0) + finalAmount,
-          name: customerName,
-          user_id: userId || existingCustomer.user_id,
-          mobile_no: mobileNo || existingCustomer.mobile_no,
+          name: pendingOrder.customer_name,
+          user_id: pendingOrder.user_id || existingCustomer.user_id,
+          mobile_no: pendingOrder.mobile_no || existingCustomer.mobile_no,
         })
         .eq("id", existingCustomer.id);
     } else {
       await supabaseAdmin.from("customers").insert({
-        name: customerName,
-        email: customerEmail,
+        name: pendingOrder.customer_name,
+        email: pendingOrder.customer_email,
         total_orders: 1,
         total_spent: finalAmount,
-        user_id: userId || null,
-        mobile_no: mobileNo || null,
+        user_id: pendingOrder.user_id || null,
+        mobile_no: pendingOrder.mobile_no || null,
       });
     }
 
-    // 4. Increment coupon used_count
+    // ── 7. Increment coupon used_count ────────────────────────────
     if (couponCode) {
       const { data: coupon } = await supabaseAdmin
         .from("coupons")
@@ -210,7 +167,7 @@ serve(async (req) => {
       JSON.stringify({ success: true, order_number: orderNumber }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("Verify payment error:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

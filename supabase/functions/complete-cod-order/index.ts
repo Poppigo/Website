@@ -1,6 +1,16 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
+/** Normalise an Indian mobile number to E.164 (+91XXXXXXXXXX). */
+function normalizePhone(raw: string): string {
+  if (!raw) return raw;
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length === 10) return `+91${digits}`;
+  if (digits.length === 11 && digits.startsWith("0")) return `+91${digits.slice(1)}`;
+  if (digits.length === 12 && digits.startsWith("91")) return `+${digits}`;
+  return `+${digits}`;
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -56,6 +66,8 @@ serve(async (req) => {
       .eq("email", order.customer_email)
       .maybeSingle();
 
+    const normalizedMobile = order.mobile_no ? normalizePhone(order.mobile_no) : null;
+
     if (existingCustomer) {
       await supabaseAdmin
         .from("customers")
@@ -64,7 +76,7 @@ serve(async (req) => {
           total_spent: (Number(existingCustomer.total_spent) || 0) + Number(order.amount),
           name: order.customer_name,
           user_id: order.user_id || existingCustomer.user_id,
-          mobile_no: order.mobile_no || existingCustomer.mobile_no,
+          mobile_no: normalizedMobile || existingCustomer.mobile_no,
         })
         .eq("id", existingCustomer.id);
     } else {
@@ -74,7 +86,7 @@ serve(async (req) => {
         total_orders: 1,
         total_spent: Number(order.amount),
         user_id: order.user_id || null,
-        mobile_no: order.mobile_no || null,
+        mobile_no: normalizedMobile,
       });
     }
 
