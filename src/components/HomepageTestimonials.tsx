@@ -1,50 +1,16 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
-const testimonials = [
-  {
-    name: "Priya S.",
-    size: "S-M",
-    rating: 5,
-    comment:
-      "Finally! No bulge under my leggings at the gym. I wore it through an entire spin class and not a single leak. Obsessed.",
-  },
-  {
-    name: "Ananya R.",
-    size: "L-XL",
-    rating: 5,
-    comment:
-      "Wore it on a 6-hour flight and felt totally fresh. The fact that it's disposable makes travel SO much easier. Game changer!",
-  },
-  {
-    name: "Kavya M.",
-    size: "S-M",
-    rating: 5,
-    comment:
-      "I was sceptical but it's genuinely slimmer than any pad I've worn. It stayed put during my morning run. 10/10 would recommend.",
-  },
-  {
-    name: "Shruti T.",
-    size: "2XL-3XL",
-    rating: 5,
-    comment:
-      "Love the stretch band – it doesn't dig in at all. Comfortable for 12 hours straight. No rashes, no leaks. Zero drama.",
-  },
-  {
-    name: "Meghna D.",
-    size: "L-XL",
-    rating: 5,
-    comment:
-      "The individual pouches are such a thoughtful touch. Discrete disposal is a big deal for me. These are now a permanent part of my stash.",
-  },
-  {
-    name: "Ishita B.",
-    size: "S-M",
-    rating: 5,
-    comment:
-      "My horse riding session used to be such a nightmare during periods. Not anymore! PoppiGo stayed in place the entire time. Unreal.",
-  },
-];
+interface Testimonial {
+  id: string;
+  name: string;
+  size: string;
+  rating: number;
+  comment: string;
+  sort_order: number;
+}
 
 const StarRating = ({ rating }: { rating: number }) => (
   <div className="flex gap-0.5 mb-3">
@@ -59,6 +25,19 @@ const StarRating = ({ rating }: { rating: number }) => (
 );
 
 const HomepageTestimonials = () => {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from("homepage_testimonials")
+      .select("id, name, size, rating, comment, sort_order")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true })
+      .then(({ data }) => {
+        if (data) setTestimonials(data as Testimonial[]);
+      });
+  }, []);
+
   return (
     <section id="testimonials" className="bg-background py-14 md:py-24">
       <div className="max-w-7xl mx-auto px-6">

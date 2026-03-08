@@ -112,7 +112,7 @@ const Navbar = () => {
 
           <button
             onClick={handleShopClick}
-            className="hidden sm:inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-5 py-2.5 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+            className="hidden sm:inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-5 py-2.5 rounded-full text-sm font-normal hover:opacity-90 transition-opacity"
           >
             Shop Now
             <span className="w-5 h-5 bg-white text-secondary rounded-full inline-flex items-center justify-center">
@@ -183,7 +183,7 @@ const Navbar = () => {
               )}
               <button
                 onClick={handleShopClick}
-                className="mt-2 inline-flex items-center justify-center gap-2 bg-secondary text-secondary-foreground px-5 py-3 rounded-full text-sm font-semibold"
+                className="mt-2 inline-flex items-center justify-center gap-2 bg-secondary text-secondary-foreground px-5 py-3 rounded-full text-sm font-normal"
               >
                 Shop Now
               </button>

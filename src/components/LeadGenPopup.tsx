@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { z } from "zod";
+import { normalizePhone } from "@/lib/utils";
 
 const leadSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
@@ -55,7 +56,7 @@ const LeadGenPopup = () => {
     const { error } = await supabase.from("customers").insert({
       name: result.data.name,
       email: result.data.email,
-      mobile_no: result.data.mobile_no,
+      mobile_no: normalizePhone(result.data.mobile_no),
     });
     setLoading(false);
 

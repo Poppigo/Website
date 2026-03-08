@@ -26,7 +26,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative bg-primary overflow-hidden pt-20">
+    <section className="relative bg-primary overflow-hidden pt-20 pb-6 md:pb-0">
       {/* Top section with text */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 pt-8 md:pt-12 pb-8 flex flex-col items-center text-center">
         {/* Decorative flowers */}
@@ -119,7 +119,7 @@ const Hero = () => {
       </div>
 
       {/* Lifestyle cards row */}
-      <div className="relative z-10 mt-4 pb-0 overflow-hidden">
+      <div className="relative z-10 mt-4">
         <div className="flex justify-center items-end gap-1 md:gap-4 px-2 md:px-8">
           {lifestyleCards.map((card, i) => (
             <motion.div
@@ -127,7 +127,7 @@ const Hero = () => {
               initial={{ opacity: 0, y: 60 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 + i * 0.1 }}
-              className="relative flex-shrink-0 w-[90px] sm:w-[160px] md:w-[210px] lg:w-[260px]"
+              className="relative w-[18%] sm:w-[160px] md:w-[210px] lg:w-[260px] min-w-0"
               style={{
                 transform: `rotate(${card.rotation}deg)`,
                 marginBottom: Math.abs(card.rotation) > 8 ? "-20px" : "0px",

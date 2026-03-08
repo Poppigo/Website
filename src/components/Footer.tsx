@@ -1,4 +1,5 @@
-import { Instagram, Globe } from "lucide-react";
+import { Instagram, Linkedin } from "lucide-react";
+import { Link } from "react-router-dom";
 import logo from "@/assets/poppigo-logo-cropped.svg";
 
 const Footer = () => {
@@ -6,7 +7,7 @@ const Footer = () => {
     <footer id="footer" className="bg-secondary text-secondary-foreground">
       {/* Bottom footer */}
       <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
           {/* Brand */}
           <div>
             <img src={logo} alt="PoppiGo" className="h-10 w-auto mb-3 brightness-0 invert" />
@@ -35,10 +36,34 @@ const Footer = () => {
                   +91 9004491875
                 </a>
               </li>
-              <li className="pt-2">
-                <a href="/#faq" className="hover:text-primary transition-colors underline underline-offset-2">
-                  Returns Policy
-                </a>
+            </ul>
+          </div>
+
+          {/* Quick Links */}
+          <div>
+            <h4 className="font-display font-semibold mb-4 text-secondary-foreground/90">
+              Policies
+            </h4>
+            <ul className="space-y-2 text-sm text-secondary-foreground/60">
+              <li>
+                <Link to="/shipping" className="hover:text-primary transition-colors">
+                  Shipping Info
+                </Link>
+              </li>
+              <li>
+                <Link to="/returns" className="hover:text-primary transition-colors">
+                  Returns &amp; Refunds
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms" className="hover:text-primary transition-colors">
+                  Terms &amp; Conditions
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy" className="hover:text-primary transition-colors">
+                  Privacy Policy
+                </Link>
               </li>
             </ul>
           </div>
@@ -62,13 +87,13 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://www.poppigo.co"
+                  href="https://www.linkedin.com/in/nilima-krishna-jhunjhunwala-8151256/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 hover:text-primary transition-colors"
                 >
-                  <Globe size={16} />
-                  www.poppigo.co
+                  <Linkedin size={16} />
+                  LinkedIn
                 </a>
               </li>
             </ul>
@@ -76,7 +101,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-secondary-foreground/10 mt-10 pt-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs text-secondary-foreground/40">
-          <p>© 2025 PoppiGo. All rights reserved.</p>
+          <p>© 2026 PoppiGo. All rights reserved.</p>
           <p className="text-right leading-relaxed">
             Marketed and Distributed by{" "}
             <span className="text-secondary-foreground/60">Carenil Essentials Private Limited</span>

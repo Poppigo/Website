@@ -1,41 +1,34 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import productSM from "@/assets/product-sm.png";
-import productLXL from "@/assets/product-lxl.jpg";
-import productPack from "@/assets/product-pack-1.png";
-import whyWeBuild from "@/assets/Why-we-build-1.jpg";
+import { supabase } from "@/integrations/supabase/client";
 
-const products = [
-  {
-    name: "Ultra-Slim Period Panty (S-M)",
-    pieces: "6 PCs",
-    price: "₹339",
-    originalPrice: "₹399",
-    discount: "-15%",
-    image: productSM,
-    link: "https://www.amazon.in/dp/B0FHWT4FJS?th=1&psc=1",
-  },
-  {
-    name: "Ultra-Slim Period Panty (L-XL)",
-    pieces: "6 PCs",
-    price: "₹339",
-    originalPrice: "₹459",
-    discount: "-26%",
-    image: productLXL,
-    link: "https://www.amazon.in/dp/B0FJ1VKSM6?th=1&psc=1",
-  },
-  {
-    name: "Ultra-Slim Period Panty (2XL-3XL)",
-    pieces: "6 PCs",
-    price: "₹399",
-    originalPrice: "₹469",
-    discount: "-25%",
-    image: productPack,
-    link: "https://www.amazon.in/dp/B0FJ1YZQQ2?th=1&psc=1",
-  },
-];
+interface FeaturedProduct {
+  id: string;
+  name: string;
+  pieces: string;
+  price: number;
+  original_price: number;
+  image_url: string;
+  link: string;
+  coupon_code: string;
+  sort_order: number;
+}
 
 const Products = () => {
+  const [products, setProducts] = useState<FeaturedProduct[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from("homepage_featured")
+      .select("id, name, pieces, price, original_price, image_url, link, coupon_code, sort_order")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true })
+      .then(({ data }) => {
+        if (data) setProducts(data as FeaturedProduct[]);
+      });
+  }, []);
+
   return (
     <section id="products" className="bg-peach py-14 md:py-24">
       <div className="max-w-7xl mx-auto px-6">
@@ -52,9 +45,13 @@ const Products = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {products.map((product, i) => (
+          {products.map((product, i) => {
+            const discount = product.original_price > product.price
+              ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
+              : 0;
+            return (
             <motion.a
-              key={product.name}
+              key={product.id}
               href={product.link}
               target="_blank"
               rel="noopener noreferrer"
@@ -66,16 +63,20 @@ const Products = () => {
             >
               <div className="relative bg-accent p-5 flex items-center justify-center aspect-[4/3] overflow-hidden">
                 <img
-                  src={product.image}
+                  src={product.image_url}
                   alt={product.name}
                   className="w-1/2 h-auto object-contain group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute top-4 left-4 bg-coral text-card px-3 py-1 rounded-full text-xs font-bold">
-                  {product.discount}
-                </div>
-                <div className="absolute bottom-3 left-3 right-3 bg-primary/90 text-primary-foreground px-3 py-1.5 rounded-xl text-[11px] font-bold text-center tracking-wide">
-                  USE CODE: POPPIGO
-                </div>
+                {discount > 0 && (
+                  <div className="absolute top-4 left-4 bg-coral text-card px-3 py-1 rounded-full text-xs font-bold">
+                    -{discount}%
+                  </div>
+                )}
+                {product.coupon_code && (
+                  <div className="absolute bottom-3 left-3 right-3 bg-primary/90 text-primary-foreground px-3 py-1.5 rounded-xl text-[11px] font-bold text-center tracking-wide">
+                    USE CODE: {product.coupon_code}
+                  </div>
+                )}
               </div>
               <div className="p-6">
                 <h3 className="font-display font-bold text-foreground text-lg mb-1">
@@ -87,10 +88,10 @@ const Products = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="font-display font-bold text-2xl text-coral">
-                      {product.price}
+                      ₹{Number(product.price).toLocaleString()}
                     </span>
                     <span className="text-muted-foreground line-through text-sm">
-                      {product.originalPrice}
+                      ₹{Number(product.original_price).toLocaleString()}
                     </span>
                   </div>
                   <span className="bg-secondary text-secondary-foreground px-5 py-2.5 rounded-full text-sm font-semibold group-hover:opacity-90 transition-opacity">
@@ -99,7 +100,8 @@ const Products = () => {
                 </div>
               </div>
             </motion.a>
-          ))}
+            );
+          })}
         </div>
 
         <div className="text-center mt-12">
