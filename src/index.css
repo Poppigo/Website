@@ -1,4 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+@font-face {
+  font-family: "LC Mogi";
+  src: url("/fonts/lc-mogi.woff2") format("woff2"),
+       url("/fonts/lc-mogi.woff") format("woff");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Khalila";
+  src: url("/fonts/khalila.woff2") format("woff2"),
+       url("/fonts/khalila.woff") format("woff");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;
@@ -6,6 +24,10 @@
 
 @layer base {
   :root {
+    --font-primary: "LC Mogi", sans-serif;
+    --font-secondary: "Poppins", sans-serif;
+    --font-accent: "Khalila", cursive;
+
     --background: 24 100% 97%;
     --foreground: 230 60% 10%;
 
@@ -96,6 +118,14 @@
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;
+  }
+
+  button, [role="button"] {
+    font-family: var(--font-accent);
+  }
+
+  blockquote, q, mark {
+    font-family: var(--font-accent);
   }
 }
 

@@ -64,6 +64,10 @@ const ProductDetail = () => {
   };
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [id]);
+
+  useEffect(() => {
     const fetchProduct = async () => {
       if (!id) return;
       const { data, error } = await supabase
@@ -113,7 +117,7 @@ const ProductDetail = () => {
 
   if (loading || !product) {
     return (
-      <div className="min-h-screen bg-peach">
+      <div className="min-h-screen bg-muted/30">
         <Navbar />
         <div className="pt-24 pb-20 flex items-center justify-center min-h-[60vh]">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
@@ -127,7 +131,7 @@ const ProductDetail = () => {
   const sizes = product.sizes || [];
 
   return (
-    <div className="min-h-screen bg-peach">
+    <div className="min-h-screen bg-muted/30">
       <Navbar />
       <div className="pt-24 pb-20">
         <div className="max-w-7xl mx-auto px-6">

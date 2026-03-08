@@ -17,6 +17,10 @@ import ProductDetail from "./pages/ProductDetail";
 import OrderSuccess from "./pages/OrderSuccess";
 import MyOrders from "./pages/MyOrders";
 import NotFound from "./pages/NotFound";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import ShippingInfo from "./pages/ShippingInfo";
+import ReturnsPolicy from "./pages/ReturnsPolicy";
 import { Navigate } from "react-router-dom";
 
 const queryClient = new QueryClient();
@@ -41,6 +45,10 @@ const App = () => (
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/terms" element={<TermsAndConditions />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/shipping" element={<ShippingInfo />} />
+                <Route path="/returns" element={<ReturnsPolicy />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

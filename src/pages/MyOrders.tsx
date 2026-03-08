@@ -56,6 +56,7 @@ const MyOrders = () => {
         .from("orders")
         .select("*")
         .eq("user_id", user.id)
+        .neq("status", "Pending")
         .order("created_at", { ascending: false });
 
       if (data) setOrders(data as Order[]);

@@ -198,9 +198,37 @@ const Checkout = () => {
         );
 
         if (codError) throw new Error(codError.message);
-        if (codData?.error) throw new Error(codData.error);
+        if (codData?.error) {
+          // Rate-limit hit — surface a friendlier message and nudge towards online payment
+          if (
+            codData.error.toLowerCase().includes("too many") ||
+            codData.error.toLowerCase().includes("maximum") ||
+            codData.error.toLowerCase().includes("rate")
+          ) {
+            toast.error(
+              "You've reached the daily limit for Cash on Delivery orders. Please switch to online payment to complete your purchase, or try again tomorrow.",
+              { duration: 6000 }
+            );
+            setPaymentMethod("online");
+            setProcessing(false);
+            return;
+          }
+          throw new Error(codData.error);
+        }
 
         clearCart();
+        // Fire-and-forget WhatsApp order confirmation + schedule follow-ups
+        if (form.phone && codData.order_id) {
+          supabase.functions.invoke("whatsapp-notify", {
+            body: {
+              type: "order_confirmation",
+              orderId: codData.order_id,
+              orderNumber: codData.order_number,
+              customerName: `${form.firstName} ${form.lastName}`,
+              customerPhone: form.phone,
+            },
+          }).catch((err: any) => console.warn("WhatsApp notify failed:", err.message));
+        }
         navigate(`/order-success?order_number=${codData.order_number}`);
       } else {
         // Online payment flow via Razorpay
@@ -220,7 +248,7 @@ const Checkout = () => {
               },
               mobileNo: form.phone,
               userId: user?.id || null,
-              amount: finalTotal,
+              couponCode: appliedCoupon?.code || null,
             },
           }
         );
@@ -250,19 +278,6 @@ const Checkout = () => {
                     razorpay_order_id: response.razorpay_order_id,
                     razorpay_payment_id: response.razorpay_payment_id,
                     razorpay_signature: response.razorpay_signature,
-                    items: cartItems,
-                    customerName: `${form.firstName} ${form.lastName}`,
-                    customerEmail: form.email,
-                    shippingAddress: {
-                      street: form.streetAddress,
-                      city: form.city,
-                      state: form.state,
-                      postcode: form.postcode,
-                      country: form.country,
-                    },
-                    mobileNo: form.phone,
-                    userId: user?.id || null,
-                    amount: finalTotal,
                     couponCode: appliedCoupon?.code || null,
                   },
                 }
@@ -272,6 +287,18 @@ const Checkout = () => {
               if (verifyData?.error) throw new Error(verifyData.error);
 
               clearCart();
+              // Fire-and-forget WhatsApp order confirmation + schedule follow-ups
+              if (form.phone && verifyData.order_id) {
+                supabase.functions.invoke("whatsapp-notify", {
+                  body: {
+                    type: "order_confirmation",
+                    orderId: verifyData.order_id,
+                    orderNumber: verifyData.order_number,
+                    customerName: `${form.firstName} ${form.lastName}`,
+                    customerPhone: form.phone,
+                  },
+                }).catch((err: any) => console.warn("WhatsApp notify failed:", err.message));
+              }
               navigate(`/order-success?order_number=${verifyData.order_number}`);
             } catch (err: any) {
               console.error("Payment verification error:", err);
@@ -537,6 +564,14 @@ const Checkout = () => {
                   {paymentMethod === "cod"
                     ? "Pay cash when your order is delivered."
                     : "Secured by Razorpay. Your payment information is encrypted."}
+                </p>
+
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  By placing your order, you agree to our{" "}
+                  <Link to="/returns" className="underline hover:text-foreground transition-colors">
+                    Returns &amp; Refund Policy
+                  </Link>
+                  . As a hygiene product, we do not accept returns. For quality concerns, contact us within 7 days of delivery.
                 </p>
               </motion.div>
             </div>

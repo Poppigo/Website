@@ -7,8 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.1"
   }
@@ -29,108 +27,6 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
-        }
-        Relationships: []
-      }
-      campaign_logs: {
-        Row: {
-          campaign_id: string | null
-          channel: string
-          created_at: string
-          customer_email: string
-          customer_name: string | null
-          error_message: string | null
-          follow_up_rule_id: string | null
-          id: string
-          sent_at: string | null
-          status: string
-        }
-        Insert: {
-          campaign_id?: string | null
-          channel: string
-          created_at?: string
-          customer_email: string
-          customer_name?: string | null
-          error_message?: string | null
-          follow_up_rule_id?: string | null
-          id?: string
-          sent_at?: string | null
-          status?: string
-        }
-        Update: {
-          campaign_id?: string | null
-          channel?: string
-          created_at?: string
-          customer_email?: string
-          customer_name?: string | null
-          error_message?: string | null
-          follow_up_rule_id?: string | null
-          id?: string
-          sent_at?: string | null
-          status?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "campaign_logs_campaign_id_fkey"
-            columns: ["campaign_id"]
-            isOneToOne: false
-            referencedRelation: "campaigns"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "campaign_logs_follow_up_rule_fkey"
-            columns: ["follow_up_rule_id"]
-            isOneToOne: false
-            referencedRelation: "follow_up_rules"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      campaigns: {
-        Row: {
-          audience: string
-          channel: string
-          created_at: string
-          failed_count: number | null
-          id: string
-          message_body: string
-          message_subject: string | null
-          scheduled_at: string | null
-          sent_at: string | null
-          sent_count: number | null
-          status: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          audience?: string
-          channel?: string
-          created_at?: string
-          failed_count?: number | null
-          id?: string
-          message_body: string
-          message_subject?: string | null
-          scheduled_at?: string | null
-          sent_at?: string | null
-          sent_count?: number | null
-          status?: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          audience?: string
-          channel?: string
-          created_at?: string
-          failed_count?: number | null
-          id?: string
-          message_body?: string
-          message_subject?: string | null
-          scheduled_at?: string | null
-          sent_at?: string | null
-          sent_count?: number | null
-          status?: string
-          title?: string
-          updated_at?: string
         }
         Relationships: []
       }
@@ -178,33 +74,89 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          marketing_opt_in: boolean
           mobile_no: string | null
           name: string
           total_orders: number | null
           total_spent: number | null
           user_id: string | null
+          whatsapp_opt_in: boolean
         }
         Insert: {
           created_at?: string
           email: string
           id?: string
+          marketing_opt_in?: boolean
           mobile_no?: string | null
           name: string
           total_orders?: number | null
           total_spent?: number | null
           user_id?: string | null
+          whatsapp_opt_in?: boolean
         }
         Update: {
           created_at?: string
           email?: string
           id?: string
+          marketing_opt_in?: boolean
           mobile_no?: string | null
           name?: string
           total_orders?: number | null
           total_spent?: number | null
           user_id?: string | null
+          whatsapp_opt_in?: boolean
         }
         Relationships: []
+      }
+      followups: {
+        Row: {
+          id: string
+          order_id: string | null
+          order_number: string | null
+          customer_name: string
+          customer_phone: string
+          message: string
+          scheduled_at: string
+          sent: boolean
+          sent_at: string | null
+          error_message: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          order_id?: string | null
+          order_number?: string | null
+          customer_name: string
+          customer_phone: string
+          message: string
+          scheduled_at: string
+          sent?: boolean
+          sent_at?: string | null
+          error_message?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          order_id?: string | null
+          order_number?: string | null
+          customer_name?: string
+          customer_phone?: string
+          message?: string
+          scheduled_at?: string
+          sent?: boolean
+          sent_at?: string | null
+          error_message?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "followups_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       follow_up_rules: {
         Row: {
@@ -391,6 +343,81 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      homepage_testimonials: {
+        Row: {
+          id: string
+          sort_order: number
+          name: string
+          size: string
+          rating: number
+          comment: string
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          sort_order?: number
+          name: string
+          size?: string
+          rating?: number
+          comment: string
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          sort_order?: number
+          name?: string
+          size?: string
+          rating?: number
+          comment?: string
+          is_active?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
+      homepage_featured: {
+        Row: {
+          id: string
+          sort_order: number
+          name: string
+          pieces: string
+          price: number
+          original_price: number
+          image_url: string
+          link: string
+          coupon_code: string
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          sort_order?: number
+          name: string
+          pieces?: string
+          price: number
+          original_price: number
+          image_url?: string
+          link?: string
+          coupon_code?: string
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          sort_order?: number
+          name?: string
+          pieces?: string
+          price?: number
+          original_price?: number
+          image_url?: string
+          link?: string
+          coupon_code?: string
+          is_active?: boolean
+          created_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {

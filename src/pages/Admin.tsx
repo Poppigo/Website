@@ -2,10 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings,
-  TrendingUp, DollarSign, LogOut, Menu, X, ChevronRight, Plus, Pencil, Trash2, Upload, Loader2, Tag, Send, Banknote,
+  LayoutDashboard, Package, ShoppingCart, Users, Settings,
+  TrendingUp, DollarSign, LogOut, Menu, X, ChevronRight, Plus, Pencil, Trash2, Upload, Loader2, Tag, Banknote, Star, MessageSquare, Send, RefreshCw,
 } from "lucide-react";
-import AdminCampaigns from "@/components/AdminCampaigns";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -23,12 +22,14 @@ const sidebarItems = [
   { icon: ShoppingCart, label: "Orders", key: "orders" },
   { icon: Package, label: "Products", key: "products" },
   { icon: Users, label: "Customers", key: "customers" },
-  { icon: Send, label: "Campaigns", key: "campaigns" },
-  { icon: BarChart3, label: "Analytics", key: "analytics" },
   { icon: Settings, label: "Coupons", key: "coupons" },
+  { icon: Star, label: "Testimonials", key: "testimonials" },
+  { icon: TrendingUp, label: "Featured", key: "featured" },
+  { icon: MessageSquare, label: "WhatsApp & Emails", key: "whatsapp" },
 ];
 
 const statusColor: Record<string, string> = {
+  Pending: "bg-purple-100 text-purple-700",
   Delivered: "bg-green-100 text-green-700",
   Shipped: "bg-blue-100 text-blue-700",
   Processing: "bg-amber-100 text-amber-700",
@@ -49,18 +50,29 @@ interface Order {
 }
 interface Customer {
   id: string; name: string; email: string; total_orders: number | null;
-  total_spent: number | null; created_at: string;
+  total_spent: number | null; created_at: string; marketing_opt_in: boolean | null;
 }
 interface Coupon {
   id: string; code: string; type: string; value: number;
   min_order_amount: number; max_uses: number | null; used_count: number;
   is_active: boolean; expires_at: string | null; created_at: string;
 }
+interface Testimonial {
+  id: string; sort_order: number; name: string; size: string;
+  rating: number; comment: string; is_active: boolean; created_at: string;
+}
+interface FeaturedProduct {
+  id: string; sort_order: number; name: string; pieces: string;
+  price: number; original_price: number; image_url: string;
+  link: string; coupon_code: string; is_active: boolean; created_at: string;
+}
 
 const emptyProduct = {
   name: "", price: 0, original_price: 0, description: "", image_url: "",
   category: "Poppigo Product", sizes: "S-M", stock: 100, is_active: true,
 };
+const emptyTestimonial = { name: "", size: "", rating: 5, comment: "", is_active: true };
+const emptyFeatured = { name: "", pieces: "6 PCs", price: 0, original_price: 0, image_url: "", link: "", coupon_code: "", is_active: true };
 
 const emptyCoupon = {
   code: "", type: "percentage" as string, value: 0, min_order_amount: 0,
@@ -73,11 +85,30 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const [orderStatusFilter, setOrderStatusFilter] = useState<string>("all");
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [featuredProducts, setFeaturedProducts] = useState<FeaturedProduct[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+
+  // Testimonial dialog state
+  const [testimonialDialogOpen, setTestimonialDialogOpen] = useState(false);
+  const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
+  const [testimonialForm, setTestimonialForm] = useState(emptyTestimonial);
+  const [deleteTestimonialDialogOpen, setDeleteTestimonialDialogOpen] = useState(false);
+  const [deletingTestimonial, setDeletingTestimonial] = useState<Testimonial | null>(null);
+
+  // Featured dialog state
+  const [featuredDialogOpen, setFeaturedDialogOpen] = useState(false);
+  const [editingFeatured, setEditingFeatured] = useState<FeaturedProduct | null>(null);
+  const [featuredForm, setFeaturedForm] = useState(emptyFeatured);
+  const [deleteFeaturedDialogOpen, setDeleteFeaturedDialogOpen] = useState(false);
+  const [deletingFeatured, setDeletingFeatured] = useState<FeaturedProduct | null>(null);
+  const featuredFileInputRef = useRef<HTMLInputElement>(null);
+  const [featuredUploading, setFeaturedUploading] = useState(false);
 
   const [productDialogOpen, setProductDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -93,19 +124,179 @@ const Admin = () => {
   const [deleteCouponDialogOpen, setDeleteCouponDialogOpen] = useState(false);
   const [deletingCoupon, setDeletingCoupon] = useState<Coupon | null>(null);
 
+  // WhatsApp & Emails state
+  const [broadcastMessage, setBroadcastMessage] = useState("");
+  const [broadcastSending, setBroadcastSending] = useState(false);
+  const [followupsRunning, setFollowupsRunning] = useState(false);
+  const [followupsStats, setFollowupsStats] = useState<{ pending: number; sent: number } | null>(null);
+  const [recentFollowups, setRecentFollowups] = useState<any[]>([]);
+  const [optedInCount, setOptedInCount] = useState<number | null>(null);
+
+  const fetchWhatsappStats = async () => {
+    const [pendingRes, sentRes, optedRes] = await Promise.all([
+      supabase.from("followups").select("id", { count: "exact", head: true }).eq("sent", false),
+      supabase.from("followups").select("id", { count: "exact", head: true }).eq("sent", true),
+      supabase.from("customers").select("id", { count: "exact", head: true }).eq("whatsapp_opt_in", true),
+    ]);
+    setFollowupsStats({ pending: pendingRes.count ?? 0, sent: sentRes.count ?? 0 });
+    setOptedInCount(optedRes.count ?? 0);
+    const { data } = await supabase
+      .from("followups")
+      .select("*")
+      .order("scheduled_at", { ascending: true })
+      .limit(20);
+    setRecentFollowups(data ?? []);
+  };
+
+  const handleRunFollowups = async () => {
+    setFollowupsRunning(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("whatsapp-notify", {
+        body: { type: "run_followups" },
+      });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      toast.success(data.message ?? "Follow-ups processed");
+      fetchWhatsappStats();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to run follow-ups");
+    } finally {
+      setFollowupsRunning(false);
+    }
+  };
+
+  const handleBroadcast = async () => {
+    if (!broadcastMessage.trim()) { toast.error("Message cannot be empty"); return; }
+    setBroadcastSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("whatsapp-notify", {
+        body: { type: "broadcast", message: broadcastMessage },
+      });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      toast.success(data.message ?? "Broadcast sent");
+      setBroadcastMessage("");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send broadcast");
+    } finally {
+      setBroadcastSending(false);
+    }
+  };
+
+  // Load WhatsApp stats when switching to that tab
+  const handleTabChange = (key: string) => {
+    setActiveTab(key);
+    if (key === "whatsapp") fetchWhatsappStats();
+  };
+
   const fetchData = async () => {
     setDataLoading(true);
-    const [prodRes, ordRes, custRes, coupRes] = await Promise.all([
+    const [prodRes, ordRes, custRes, coupRes, testRes, featRes] = await Promise.all([
       supabase.from("products").select("*").order("created_at", { ascending: false }),
       supabase.from("orders").select("*").order("created_at", { ascending: false }),
       supabase.from("customers").select("*").order("created_at", { ascending: false }),
       supabase.from("coupons").select("*").order("created_at", { ascending: false }),
+      supabase.from("homepage_testimonials").select("*").order("sort_order", { ascending: true }),
+      supabase.from("homepage_featured").select("*").order("sort_order", { ascending: true }),
     ]);
     if (prodRes.data) setProducts(prodRes.data as Product[]);
     if (ordRes.data) setOrders(ordRes.data as Order[]);
-    if (custRes.data) setCustomers(custRes.data as Customer[]);
+    if (custRes.data) setCustomers(custRes.data as unknown as Customer[]);
     if (coupRes.data) setCoupons(coupRes.data as Coupon[]);
+    if (testRes.data) setTestimonials(testRes.data as Testimonial[]);
+    if (featRes.data) setFeaturedProducts(featRes.data as FeaturedProduct[]);
     setDataLoading(false);
+  };
+
+  const handleSaveTestimonial = async () => {
+    if (!testimonialForm.name.trim()) { toast.error("Name is required"); return; }
+    if (!testimonialForm.comment.trim()) { toast.error("Comment is required"); return; }
+    const payload = { ...testimonialForm };
+    if (editingTestimonial) {
+      const { error } = await supabase.from("homepage_testimonials").update(payload).eq("id", editingTestimonial.id);
+      if (error) { toast.error("Failed to update testimonial"); return; }
+      toast.success("Testimonial updated!");
+    } else {
+      const maxOrder = testimonials.reduce((m, t) => Math.max(m, t.sort_order), 0);
+      const { error } = await supabase.from("homepage_testimonials").insert({ ...payload, sort_order: maxOrder + 1 });
+      if (error) { toast.error("Failed to add testimonial"); return; }
+      toast.success("Testimonial added!");
+    }
+    setTestimonialDialogOpen(false);
+    fetchData();
+  };
+
+  const handleDeleteTestimonial = async () => {
+    if (!deletingTestimonial) return;
+    const { error } = await supabase.from("homepage_testimonials").delete().eq("id", deletingTestimonial.id);
+    if (error) { toast.error("Failed to delete testimonial"); return; }
+    toast.success("Testimonial deleted!");
+    setDeleteTestimonialDialogOpen(false);
+    setDeletingTestimonial(null);
+    fetchData();
+  };
+
+  const handleFeaturedImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { toast.error("Please select an image file"); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be less than 5MB"); return; }
+    setFeaturedUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const fileName = `featured-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("product-images").upload(fileName, file, { cacheControl: "3600", upsert: false });
+      if (uploadError) throw uploadError;
+      const { data: publicUrl } = supabase.storage.from("product-images").getPublicUrl(fileName);
+      setFeaturedForm((prev) => ({ ...prev, image_url: publicUrl.publicUrl }));
+      toast.success("Image uploaded!");
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      toast.error("Failed to upload image");
+    } finally {
+      setFeaturedUploading(false);
+    }
+  };
+
+  const handleSaveFeatured = async () => {
+    if (!featuredForm.name.trim()) { toast.error("Name is required"); return; }
+    if (featuredForm.price <= 0) { toast.error("Price must be greater than 0"); return; }
+    const payload = { ...featuredForm };
+    if (editingFeatured) {
+      const { error } = await supabase.from("homepage_featured").update(payload).eq("id", editingFeatured.id);
+      if (error) { toast.error("Failed to update featured product"); return; }
+      toast.success("Featured product updated!");
+    } else {
+      const maxOrder = featuredProducts.reduce((m, f) => Math.max(m, f.sort_order), 0);
+      const { error } = await supabase.from("homepage_featured").insert({ ...payload, sort_order: maxOrder + 1 });
+      if (error) { toast.error("Failed to add featured product"); return; }
+      toast.success("Featured product added!");
+    }
+    setFeaturedDialogOpen(false);
+    fetchData();
+  };
+
+  const handleDeleteFeatured = async () => {
+    if (!deletingFeatured) return;
+    const { error } = await supabase.from("homepage_featured").delete().eq("id", deletingFeatured.id);
+    if (error) { toast.error("Failed to delete featured product"); return; }
+    toast.success("Featured product deleted!");
+    setDeleteFeaturedDialogOpen(false);
+    setDeletingFeatured(null);
+    fetchData();
+  };
+
+  const handleToggleOptIn = async (customerId: string, current: boolean | null) => {
+    const newVal = !(current ?? true);
+    const { error } = await supabase
+      .from("customers")
+      .update({ marketing_opt_in: newVal } as any)
+      .eq("id", customerId);
+    if (error) { toast.error("Failed to update opt-in status"); return; }
+    setCustomers((prev) =>
+      prev.map((c) => c.id === customerId ? { ...c, marketing_opt_in: newVal } : c)
+    );
+    toast.success(newVal ? "Customer opted in to marketing" : "Customer opted out of marketing");
   };
 
   useEffect(() => {
@@ -236,8 +427,10 @@ const Admin = () => {
     fetchData();
   };
 
-  const totalSales = orders.reduce((sum, o) => sum + Number(o.amount), 0);
-  const totalOrders = orders.length;
+  // Exclude Pending (unpaid) orders from financial stats
+  const confirmedOrders = orders.filter((o) => o.status !== "Pending");
+  const totalSales = confirmedOrders.reduce((sum, o) => sum + Number(o.amount), 0);
+  const totalOrders = confirmedOrders.length;
   const totalCustomers = customers.length;
   const avgOrderValue = totalOrders > 0 ? Math.round(totalSales / totalOrders) : 0;
 
@@ -283,7 +476,7 @@ const Admin = () => {
         </div>
         <nav className="flex-1 px-4 space-y-1">
           {sidebarItems.map((item) => (
-            <button key={item.key} onClick={() => { setActiveTab(item.key); setSidebarOpen(false); }}
+            <button key={item.key} onClick={() => { handleTabChange(item.key); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === item.key ? "bg-primary text-primary-foreground" : "text-secondary-foreground/70 hover:bg-secondary-foreground/10"}`}>
               <item.icon size={18} />{item.label}
             </button>
@@ -378,7 +571,21 @@ const Admin = () => {
               {activeTab === "orders" && (
                 <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
                   <Card>
-                    <CardHeader><CardTitle className="text-base">All Orders ({orders.length})</CardTitle></CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-3">
+                      <CardTitle className="text-base">All Orders ({orders.length})</CardTitle>
+                      <select
+                        value={orderStatusFilter}
+                        onChange={(e) => setOrderStatusFilter(e.target.value)}
+                        className="bg-card border border-border rounded px-3 py-1.5 text-sm font-medium text-foreground"
+                      >
+                        <option value="all">All Statuses</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                      </select>
+                    </CardHeader>
                     <CardContent className="px-0">
                       <Table>
                         <TableHeader>
@@ -388,7 +595,7 @@ const Admin = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {orders.map((order) => {
+                          {(orderStatusFilter === "all" ? orders : orders.filter((o) => o.status === orderStatusFilter)).map((order) => {
                             const isExpanded = expandedOrderId === order.id;
                             const items = Array.isArray(order.items) ? order.items : [];
                             const address = order.shipping_address && typeof order.shipping_address === 'object' ? order.shipping_address as Record<string, any> : null;
@@ -415,6 +622,7 @@ const Admin = () => {
                                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                                     <select value={order.status} onChange={async (e) => {
                                       const newStatus = e.target.value;
+                                      if (newStatus === order.status) return;
                                       const { error } = await supabase.from("orders").update({ status: newStatus }).eq("id", order.id);
                                       if (error) { toast.error("Failed to update status"); return; }
                                       // For COD orders marked as Delivered, update customer metrics
@@ -434,6 +642,7 @@ const Admin = () => {
                                       toast.success(`Order ${order.order_number} → ${newStatus}`);
                                       fetchData();
                                     }} className="bg-card border border-border rounded px-2 py-1 text-xs font-medium text-foreground">
+                                      <option value="Pending" disabled>Pending</option>
                                       <option value="Processing">Processing</option>
                                       <option value="Shipped">Shipped</option>
                                       <option value="Delivered">Delivered</option>
@@ -539,7 +748,7 @@ const Admin = () => {
                     <CardHeader><CardTitle className="text-base">All Customers ({customers.length})</CardTitle></CardHeader>
                     <CardContent className="px-0">
                       <Table>
-                        <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Mobile</TableHead><TableHead>Orders</TableHead><TableHead>Total Spent</TableHead><TableHead>Joined</TableHead></TableRow></TableHeader>
+                        <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Mobile</TableHead><TableHead>Orders</TableHead><TableHead>Total Spent</TableHead><TableHead>Joined</TableHead><TableHead>Marketing OPT</TableHead></TableRow></TableHeader>
                         <TableBody>
                           {customers.map((c) => (
                             <TableRow key={c.id}>
@@ -549,6 +758,19 @@ const Admin = () => {
                               <TableCell>{c.total_orders ?? 0}</TableCell>
                               <TableCell className="font-medium">₹{Number(c.total_spent ?? 0).toLocaleString()}</TableCell>
                               <TableCell className="text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</TableCell>
+                              <TableCell>
+                                <button
+                                  onClick={() => handleToggleOptIn(c.id, c.marketing_opt_in)}
+                                  title={c.marketing_opt_in !== false ? "Click to opt out" : "Click to opt in"}
+                                  className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-colors ${
+                                    c.marketing_opt_in !== false
+                                      ? "bg-green-100 text-green-700 hover:bg-green-200"
+                                      : "bg-red-100 text-red-700 hover:bg-red-200"
+                                  }`}
+                                >
+                                  {c.marketing_opt_in !== false ? "Opted In" : "Opted Out"}
+                                </button>
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -558,8 +780,87 @@ const Admin = () => {
                 </motion.div>
               )}
 
-              {/* CAMPAIGNS */}
-              {activeTab === "campaigns" && <AdminCampaigns />}
+              {/* TESTIMONIALS */}
+              {activeTab === "testimonials" && (
+                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                      <CardTitle className="text-base">Homepage Testimonials ({testimonials.length})</CardTitle>
+                      <Button size="sm" onClick={() => { setEditingTestimonial(null); setTestimonialForm(emptyTestimonial); setTestimonialDialogOpen(true); }} className="gap-1"><Plus size={16} /> Add Review</Button>
+                    </CardHeader>
+                    <CardContent className="px-0">
+                      <Table>
+                        <TableHeader><TableRow><TableHead>#</TableHead><TableHead>Name</TableHead><TableHead>Size</TableHead><TableHead>Rating</TableHead><TableHead>Comment</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+                        <TableBody>
+                          {testimonials.map((t) => (
+                            <TableRow key={t.id}>
+                              <TableCell className="text-muted-foreground">{t.sort_order}</TableCell>
+                              <TableCell className="font-medium">{t.name}</TableCell>
+                              <TableCell className="text-muted-foreground">{t.size}</TableCell>
+                              <TableCell>
+                                <div className="flex gap-0.5">
+                                  {[1,2,3,4,5].map((s) => <Star key={s} size={12} className={s <= t.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/20"} />)}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-muted-foreground text-xs max-w-[300px] truncate">{t.comment}</TableCell>
+                              <TableCell><span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${t.is_active ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>{t.is_active ? "Active" : "Hidden"}</span></TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex items-center justify-end gap-1">
+                                  <button onClick={() => { setEditingTestimonial(t); setTestimonialForm({ name: t.name, size: t.size, rating: t.rating, comment: t.comment, is_active: t.is_active }); setTestimonialDialogOpen(true); }} className="p-1.5 rounded hover:bg-muted transition-colors"><Pencil size={15} className="text-muted-foreground" /></button>
+                                  <button onClick={() => { setDeletingTestimonial(t); setDeleteTestimonialDialogOpen(true); }} className="p-1.5 rounded hover:bg-destructive/10 transition-colors"><Trash2 size={15} className="text-destructive" /></button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+
+              {/* FEATURED PRODUCTS */}
+              {activeTab === "featured" && (
+                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                      <CardTitle className="text-base">Homepage Featured Products ({featuredProducts.length})</CardTitle>
+                      <Button size="sm" onClick={() => { setEditingFeatured(null); setFeaturedForm(emptyFeatured); setFeaturedDialogOpen(true); }} className="gap-1"><Plus size={16} /> Add Item</Button>
+                    </CardHeader>
+                    <CardContent className="px-0">
+                      <Table>
+                        <TableHeader><TableRow><TableHead>Image</TableHead><TableHead>Name</TableHead><TableHead>Price</TableHead><TableHead className="hidden md:table-cell">Original</TableHead><TableHead className="hidden md:table-cell">Discount</TableHead><TableHead className="hidden sm:table-cell">Coupon</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+                        <TableBody>
+                          {featuredProducts.map((f) => {
+                            const disc = f.original_price > f.price ? Math.round(((f.original_price - f.price) / f.original_price) * 100) : 0;
+                            return (
+                              <TableRow key={f.id}>
+                                <TableCell>
+                                  <div className="w-10 h-10 rounded-lg bg-accent overflow-hidden">
+                                    {f.image_url ? <img src={f.image_url} alt={f.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Package size={16} /></div>}
+                                  </div>
+                                </TableCell>
+                                <TableCell className="font-medium max-w-[200px] truncate">{f.name}</TableCell>
+                                <TableCell>₹{Number(f.price).toLocaleString()}</TableCell>
+                                <TableCell className="hidden md:table-cell text-muted-foreground">₹{Number(f.original_price).toLocaleString()}</TableCell>
+                                <TableCell className="hidden md:table-cell">{disc}%</TableCell>
+                                <TableCell className="hidden sm:table-cell font-mono text-xs">{f.coupon_code || "—"}</TableCell>
+                                <TableCell><span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${f.is_active ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>{f.is_active ? "Active" : "Hidden"}</span></TableCell>
+                                <TableCell className="text-right">
+                                  <div className="flex items-center justify-end gap-1">
+                                    <button onClick={() => { setEditingFeatured(f); setFeaturedForm({ name: f.name, pieces: f.pieces, price: f.price, original_price: f.original_price, image_url: f.image_url, link: f.link, coupon_code: f.coupon_code, is_active: f.is_active }); setFeaturedDialogOpen(true); }} className="p-1.5 rounded hover:bg-muted transition-colors"><Pencil size={15} className="text-muted-foreground" /></button>
+                                    <button onClick={() => { setDeletingFeatured(f); setDeleteFeaturedDialogOpen(true); }} className="p-1.5 rounded hover:bg-destructive/10 transition-colors"><Trash2 size={15} className="text-destructive" /></button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
 
               {/* COUPONS */}
               {activeTab === "coupons" && (
@@ -603,18 +904,105 @@ const Admin = () => {
                 </motion.div>
               )}
 
-              {/* PLACEHOLDER TABS */}
-              {activeTab === "analytics" && (
-                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-center min-h-[400px]">
-                  <Card className="max-w-sm w-full text-center">
-                    <CardContent className="p-8">
-                      <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
-                        <BarChart3 size={28} className="text-muted-foreground" />
+              {/* WHATSAPP & EMAILS */}
+              {activeTab === "whatsapp" && (
+                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+
+                  {/* Stats row */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <Card><CardContent className="pt-5 pb-4">
+                      <p className="text-xs text-muted-foreground mb-1">Opted-in Customers</p>
+                      <p className="text-2xl font-bold">{optedInCount ?? "—"}</p>
+                    </CardContent></Card>
+                    <Card><CardContent className="pt-5 pb-4">
+                      <p className="text-xs text-muted-foreground mb-1">Pending Follow-ups</p>
+                      <p className="text-2xl font-bold text-amber-600">{followupsStats?.pending ?? "—"}</p>
+                    </CardContent></Card>
+                    <Card><CardContent className="pt-5 pb-4">
+                      <p className="text-xs text-muted-foreground mb-1">Follow-ups Sent</p>
+                      <p className="text-2xl font-bold text-green-600">{followupsStats?.sent ?? "—"}</p>
+                    </CardContent></Card>
+                  </div>
+
+                  {/* Run Follow-ups */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2"><RefreshCw size={16} /> Scheduled Follow-ups</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm text-muted-foreground">
+                        When an order is confirmed, follow-up reminders are automatically scheduled at <strong>7 days</strong>, <strong>15 days</strong>, and <strong>30 days</strong>. Click below to send all overdue messages now.
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <Button onClick={handleRunFollowups} disabled={followupsRunning} className="gap-2">
+                          {followupsRunning ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+                          Run Follow-ups
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={fetchWhatsappStats} className="gap-1.5">
+                          <RefreshCw size={13} /> Refresh Stats
+                        </Button>
                       </div>
-                      <h3 className="font-display text-lg font-bold text-foreground mb-2">Analytics</h3>
-                      <p className="text-sm text-muted-foreground">This section is coming soon.</p>
+
+                      {/* Follow-ups table */}
+                      {recentFollowups.length > 0 && (
+                        <div className="mt-2 overflow-x-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Customer</TableHead>
+                                <TableHead>Order</TableHead>
+                                <TableHead>Scheduled</TableHead>
+                                <TableHead>Status</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {recentFollowups.map((f) => (
+                                <TableRow key={f.id}>
+                                  <TableCell className="font-medium">{f.customer_name}</TableCell>
+                                  <TableCell className="font-mono text-xs text-muted-foreground">{f.order_number}</TableCell>
+                                  <TableCell className="text-xs text-muted-foreground">{new Date(f.scheduled_at).toLocaleDateString()}</TableCell>
+                                  <TableCell>
+                                    {f.sent
+                                      ? <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">Sent</span>
+                                      : new Date(f.scheduled_at) <= new Date()
+                                        ? <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">Overdue</span>
+                                        : <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground">Scheduled</span>
+                                    }
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
+
+                  {/* Broadcast */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2"><Send size={16} /> Broadcast WhatsApp Message</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm text-muted-foreground">
+                        Send a message to all customers with WhatsApp opt-in enabled. Use <code className="bg-muted px-1 rounded text-xs">{"{name}"}</code> to personalise with the customer's name.
+                      </p>
+                      <textarea
+                        value={broadcastMessage}
+                        onChange={(e) => setBroadcastMessage(e.target.value)}
+                        placeholder={"Hi {name}! 🎉 Check out our latest collection at poppigo.com — use code SAVE15 for 15% off!"}
+                        rows={5}
+                        className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"
+                      />
+                      <div className="flex items-center gap-3">
+                        <Button onClick={handleBroadcast} disabled={broadcastSending || !broadcastMessage.trim()} className="gap-2">
+                          {broadcastSending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                          {broadcastSending ? "Sending..." : `Send to ${optedInCount ?? "?"} customers`}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
                 </motion.div>
               )}
             </>
@@ -728,6 +1116,113 @@ const Admin = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteCouponDialogOpen(false)}>Cancel</Button>
             <Button variant="destructive" onClick={handleDeleteCoupon}>Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Testimonial Add/Edit Dialog */}
+      <Dialog open={testimonialDialogOpen} onOpenChange={setTestimonialDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader><DialogTitle>{editingTestimonial ? "Edit Review" : "Add Review"}</DialogTitle></DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Name</Label><Input value={testimonialForm.name} onChange={(e) => setTestimonialForm({ ...testimonialForm, name: e.target.value })} placeholder="e.g. Priya S." /></div>
+              <div><Label>Size</Label><Input value={testimonialForm.size} onChange={(e) => setTestimonialForm({ ...testimonialForm, size: e.target.value })} placeholder="e.g. S-M" /></div>
+            </div>
+            <div>
+              <Label>Star Rating</Label>
+              <div className="flex gap-2 mt-2">
+                {[1,2,3,4,5].map((s) => (
+                  <button key={s} type="button" onClick={() => setTestimonialForm({ ...testimonialForm, rating: s })} className="p-1">
+                    <Star size={22} className={s <= testimonialForm.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"} />
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <Label>Review Comment</Label>
+              <textarea value={testimonialForm.comment} onChange={(e) => setTestimonialForm({ ...testimonialForm, comment: e.target.value })} placeholder="Customer review text..." className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[100px] resize-y mt-1" />
+            </div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" checked={testimonialForm.is_active} onChange={(e) => setTestimonialForm({ ...testimonialForm, is_active: e.target.checked })} className="rounded" id="test_active" />
+              <Label htmlFor="test_active">Show on homepage</Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTestimonialDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveTestimonial}>{editingTestimonial ? "Update" : "Add"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Testimonial Confirmation */}
+      <Dialog open={deleteTestimonialDialogOpen} onOpenChange={setDeleteTestimonialDialogOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader><DialogTitle>Delete Review</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">Are you sure you want to delete the review by <strong>{deletingTestimonial?.name}</strong>?</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTestimonialDialogOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDeleteTestimonial}>Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Featured Product Add/Edit Dialog */}
+      <Dialog open={featuredDialogOpen} onOpenChange={setFeaturedDialogOpen}>
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>{editingFeatured ? "Edit Featured Product" : "Add Featured Product"}</DialogTitle></DialogHeader>
+          <div className="space-y-4 py-2">
+            <div><Label>Product Name</Label><Input value={featuredForm.name} onChange={(e) => setFeaturedForm({ ...featuredForm, name: e.target.value })} placeholder="e.g. Ultra-Slim Period Panty (S-M)" /></div>
+            <div><Label>Pieces / Subtitle</Label><Input value={featuredForm.pieces} onChange={(e) => setFeaturedForm({ ...featuredForm, pieces: e.target.value })} placeholder="e.g. 6 PCs" /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Price (₹)</Label><Input type="number" value={featuredForm.price} onChange={(e) => setFeaturedForm({ ...featuredForm, price: Number(e.target.value) })} /></div>
+              <div><Label>Original Price (₹)</Label><Input type="number" value={featuredForm.original_price} onChange={(e) => setFeaturedForm({ ...featuredForm, original_price: Number(e.target.value) })} /></div>
+            </div>
+            <div>
+              <Label>Discount (auto-calculated)</Label>
+              <Input disabled value={featuredForm.original_price > featuredForm.price ? `-${Math.round(((featuredForm.original_price - featuredForm.price) / featuredForm.original_price) * 100)}%` : "0%"} />
+            </div>
+            <div>
+              <Label>Product Image</Label>
+              <div className="mt-2">
+                {featuredForm.image_url && (
+                  <div className="mb-3 w-24 h-24 rounded-lg border border-border overflow-hidden bg-accent">
+                    <img src={featuredForm.image_url} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <div className="flex items-center gap-3">
+                  <input ref={featuredFileInputRef} type="file" accept="image/*" onChange={handleFeaturedImageUpload} className="hidden" />
+                  <Button type="button" variant="outline" size="sm" onClick={() => featuredFileInputRef.current?.click()} disabled={featuredUploading} className="gap-1.5">
+                    {featuredUploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                    {featuredUploading ? "Uploading..." : "Upload Image"}
+                  </Button>
+                  <span className="text-xs text-muted-foreground">or paste URL below</span>
+                </div>
+                <Input className="mt-2" value={featuredForm.image_url} onChange={(e) => setFeaturedForm({ ...featuredForm, image_url: e.target.value })} placeholder="https://..." />
+              </div>
+            </div>
+            <div><Label>Product Link (Amazon / website)</Label><Input value={featuredForm.link} onChange={(e) => setFeaturedForm({ ...featuredForm, link: e.target.value })} placeholder="https://amazon.in/dp/..." /></div>
+            <div><Label>Coupon Code</Label><Input value={featuredForm.coupon_code} onChange={(e) => setFeaturedForm({ ...featuredForm, coupon_code: e.target.value.toUpperCase() })} placeholder="e.g. POPPIGO" className="font-mono" /></div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" checked={featuredForm.is_active} onChange={(e) => setFeaturedForm({ ...featuredForm, is_active: e.target.checked })} className="rounded" id="feat_active" />
+              <Label htmlFor="feat_active">Show on homepage</Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setFeaturedDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveFeatured}>{editingFeatured ? "Update" : "Add"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Featured Confirmation */}
+      <Dialog open={deleteFeaturedDialogOpen} onOpenChange={setDeleteFeaturedDialogOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader><DialogTitle>Delete Featured Product</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">Are you sure you want to delete <strong>{deletingFeatured?.name}</strong>?</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteFeaturedDialogOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDeleteFeatured}>Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

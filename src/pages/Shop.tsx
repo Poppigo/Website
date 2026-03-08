@@ -292,7 +292,7 @@ const Shop = () => {
                 <div
                   className={
                     layout === "grid"
-                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                      ? "grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6"
                       : "flex flex-col gap-6"
                   }
                 >
@@ -325,15 +325,15 @@ const Shop = () => {
                             </div>
                           )}
                         </Link>
-                        <div className="p-5 flex flex-col justify-between flex-1">
+                        <div className="p-3 sm:p-5 flex flex-col justify-between flex-1">
                           <div>
                             <Link to={`/product/${product.id}`}>
-                              <h3 className="font-display font-bold text-foreground text-base leading-snug mb-2 line-clamp-2 hover:text-coral transition-colors">
+                              <h3 className="font-display font-bold text-foreground text-xs sm:text-base leading-snug mb-1 sm:mb-2 line-clamp-2 hover:text-coral transition-colors">
                                 {product.name}
                               </h3>
                             </Link>
-                            <div className="flex items-center gap-2 mb-3">
-                              <span className="font-display font-bold text-xl text-coral">
+                            <div className="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+                              <span className="font-display font-bold text-base sm:text-xl text-coral">
                                 ₹{Number(product.price).toFixed(2)}
                               </span>
                               {product.original_price && product.original_price > product.price && (
@@ -361,16 +361,16 @@ const Shop = () => {
                             <div className="flex items-center gap-1 border border-border rounded-lg overflow-hidden">
                               <button
                                 onClick={() => updateQty(product.id, -1)}
-                                className="px-2.5 py-1.5 text-muted-foreground hover:text-foreground text-sm"
+                                className="px-1.5 sm:px-2.5 py-1 sm:py-1.5 text-muted-foreground hover:text-foreground text-xs sm:text-sm"
                               >
                                 −
                               </button>
-                              <span className="px-3 py-1.5 text-sm font-medium text-foreground min-w-[2rem] text-center">
+                              <span className="px-1.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium text-foreground min-w-[1.5rem] sm:min-w-[2rem] text-center">
                                 {quantities[product.id] || 1}
                               </span>
                               <button
                                 onClick={() => updateQty(product.id, 1)}
-                                className="px-2.5 py-1.5 text-muted-foreground hover:text-foreground text-sm"
+                                className="px-1.5 sm:px-2.5 py-1 sm:py-1.5 text-muted-foreground hover:text-foreground text-xs sm:text-sm"
                               >
                                 +
                               </button>
@@ -387,7 +387,7 @@ const Shop = () => {
                                 );
                                 toast.success(`${product.name} added to cart!`);
                               }}
-                              className="w-9 h-9 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center hover:opacity-80 transition-opacity"
+                              className="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center hover:opacity-80 transition-opacity"
                             >
                               <Plus size={18} />
                             </button>
