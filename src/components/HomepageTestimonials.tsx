@@ -18,7 +18,7 @@ const StarRating = ({ rating }: { rating: number }) => (
       <Star
         key={s}
         size={14}
-        className={s <= rating ? "fill-lime text-lime" : "text-foreground/10"}
+        className={s <= rating ? "fill-orange-400 text-orange-400" : "text-foreground/10"}
       />
     ))}
   </div>
@@ -39,7 +39,7 @@ const HomepageTestimonials = () => {
   }, []);
 
   return (
-    <section id="testimonials" className="bg-white py-16 md:py-24">
+    <section id="testimonials" className="bg-[#fff4ee] py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div
           className="text-center mb-10 md:mb-14"
@@ -48,13 +48,13 @@ const HomepageTestimonials = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <span className="font-display font-semibold text-sm uppercase tracking-widest" style={{ color: "#4241ff" }}>
+          <span className="font-accent font-semibold text-4xl tracking-widest" style={{ color: "#4241ff" }}>
             Reviews
           </span>
           <h2 className="font-display text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3">
             See Why Women Are Switching
           </h2>
-          <p className="text-foreground/50 text-lg mt-3 font-body">
+          <p className="text-foreground/50 text-2xl md:text-3xl mt-3 font-body">
             They tried it. Now they're obsessed.
           </p>
         </motion.div>
@@ -74,8 +74,8 @@ const HomepageTestimonials = () => {
                 "{review.comment}"
               </p>
               <div className="mt-5 flex items-center justify-between">
-                <span className="font-display font-bold text-foreground">{review.name}</span>
-                <span className="text-xs text-foreground/50 bg-lime/20 px-3 py-1 rounded-full font-medium">
+                <span className="font-body font-bold text-foreground">{review.name}</span>
+                <span className="text-sm text-foreground/50 bg-lime/20 px-3 py-1 rounded-full font-medium">
                   Size {review.size}
                 </span>
               </div>

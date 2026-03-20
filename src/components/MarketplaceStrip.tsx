@@ -15,13 +15,13 @@ const LogoRow = () => (
     {marketplaces.map((mp) => (
       <div
         key={mp.name}
-        className="h-16 min-w-[170px] rounded-2xl bg-white/95 border border-white/20 flex items-center gap-3 shadow-md shrink-0 select-none px-3"
+        className="h-16 min-w-[170px] rounded-2xl bg-[#0f1a35] border border-white/10 flex items-center gap-3 shadow-md shrink-0 select-none px-3"
       >
         <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center p-1.5 shadow-sm">
           <img src={mp.logo} alt={mp.name} className="w-full h-full object-contain" />
         </div>
         <div className="flex flex-col leading-tight">
-          <span className="font-display font-bold text-sm text-[#1b2a54]">{mp.name}</span>
+          <span className="font-body font-bold text-base text-white">{mp.name}</span>
         </div>
       </div>
     ))}
@@ -30,7 +30,7 @@ const LogoRow = () => (
 
 const MarketplaceStrip = () => {
   return (
-    <section className="bg-foreground py-12 md:py-16">
+    <section className="py-12 md:py-16" style={{ backgroundColor: '#0f1a35' }}>
       <motion.div
         className="text-center mb-10 px-6"
         initial={{ opacity: 0, y: 20 }}
@@ -38,17 +38,17 @@ const MarketplaceStrip = () => {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <h3 className="font-display text-2xl md:text-3xl font-bold text-white">
-          PoppiGo — available wherever you shop.
-        </h3>
-        <p className="text-white/60 text-sm mt-2 font-body">
+        <div className="font-body text-3xl md:text-4xl font-bold" style={{ color: '#ccff3c' }}>
+          PoppiGo — available wherever you shop
+        </div>
+        <p className="text-2xl md:text-3xl mt-2 font-body" style={{ color: '#ccff3c', opacity: 0.75 }}>
           Shop PoppiGo on your favorite apps.
         </p>
       </motion.div>
 
       <div className="relative overflow-hidden">
-        <div className="absolute left-0 inset-y-0 w-24 bg-gradient-to-r from-foreground to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 inset-y-0 w-24 bg-gradient-to-l from-foreground to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 inset-y-0 w-24 z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, #0f1a35, transparent)' }} />
+        <div className="absolute right-0 inset-y-0 w-24 z-10 pointer-events-none" style={{ background: 'linear-gradient(to left, #0f1a35, transparent)' }} />
 
         <div className="scrolling-marquee-slow flex gap-6 w-max py-2">
           <LogoRow /><LogoRow /><LogoRow /><LogoRow />

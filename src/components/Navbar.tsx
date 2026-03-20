@@ -44,11 +44,15 @@ const Navbar = () => {
     navigate("/shop");
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-foreground/5">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-foreground/5" style={{ backgroundColor: "#fafff0" }}>
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center">
-          <img src={logo} alt="PoppiGo" className="h-8 md:h-10 w-auto" />
+        <Link to="/" onClick={scrollToTop} className="flex items-center">
+          <img src={logo} alt="PoppiGo" className="h-10 md:h-14 w-auto" />
         </Link>
 
         <div className="hidden lg:flex items-center gap-8">
@@ -57,7 +61,8 @@ const Navbar = () => {
               <button
                 key={link.label}
                 onClick={handleShopClick}
-                className="text-sm font-medium text-foreground/60 hover:text-foreground transition-colors"
+                className="text-base font-body font-medium transition-colors"
+                style={{ color: "#1b2a54" }}
               >
                 {link.label}
               </button>
@@ -65,7 +70,8 @@ const Navbar = () => {
               <button
                 key={link.label}
                 onClick={() => handleSectionClick(link.section!)}
-                className="text-sm font-medium text-foreground/60 hover:text-foreground transition-colors"
+                className="text-base font-body font-medium transition-colors"
+                style={{ color: "#1b2a54" }}
               >
                 {link.label}
               </button>
@@ -78,31 +84,33 @@ const Navbar = () => {
             <>
               <Link
                 to="/my-orders"
+                onClick={scrollToTop}
                 className="text-foreground/60 hover:text-foreground transition-colors"
                 title="My Orders"
               >
-                <Package size={20} />
+                <Package size={26} />
               </Link>
               <button
                 onClick={() => signOut()}
                 className="text-foreground/60 hover:text-foreground transition-colors"
                 title="Sign out"
               >
-                <LogOut size={20} />
+                <LogOut size={26} />
               </button>
             </>
           ) : (
             <Link
               to="/auth"
+              onClick={scrollToTop}
               className="text-foreground/60 hover:text-foreground transition-colors"
               title="Sign in"
             >
-              <User size={20} />
+              <User size={26} />
             </Link>
           )}
 
-          <Link to="/cart" className="relative text-foreground/60 hover:text-foreground transition-colors">
-            <ShoppingBag size={20} />
+          <Link to="/cart" onClick={scrollToTop} className="relative text-foreground/60 hover:text-foreground transition-colors">
+            <ShoppingBag size={26} />
             {totalItems > 0 && (
               <span className="absolute -top-2 -right-2 w-5 h-5 bg-lime text-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
                 {totalItems}
@@ -112,11 +120,11 @@ const Navbar = () => {
 
           <button
             onClick={handleShopClick}
-            className="hidden sm:inline-flex items-center gap-2 bg-lime text-foreground px-5 py-2.5 rounded-full text-sm font-semibold hover:shadow-md hover:shadow-lime/30 transition-all"
+            className="hidden sm:inline-flex items-center gap-2 bg-lime text-foreground px-7 py-3 rounded-full text-base font-medium hover:shadow-md hover:shadow-lime/30 transition-all"
           >
             Shop Now
-            <span className="w-5 h-5 bg-foreground text-white rounded-full inline-flex items-center justify-center">
-              <ArrowUpRight className="w-3 h-3" />
+            <span className="w-6 h-6 bg-foreground text-white rounded-full inline-flex items-center justify-center">
+              <ArrowUpRight className="w-3.5 h-3.5" />
             </span>
           </button>
           <button
@@ -134,7 +142,8 @@ const Navbar = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="lg:hidden overflow-hidden bg-white border-t border-foreground/5"
+            className="lg:hidden overflow-hidden border-t border-foreground/5"
+            style={{ backgroundColor: "#fafff0" }}
           >
             <div className="px-6 py-6 flex flex-col gap-4">
               {navLinks.map((link) =>
@@ -142,7 +151,8 @@ const Navbar = () => {
                   <button
                     key={link.label}
                     onClick={handleShopClick}
-                    className="text-foreground font-medium text-lg text-left"
+                    className="font-body font-medium text-lg text-left"
+                    style={{ color: "#1b2a54" }}
                   >
                     {link.label}
                   </button>
@@ -150,7 +160,8 @@ const Navbar = () => {
                   <button
                     key={link.label}
                     onClick={() => handleSectionClick(link.section!)}
-                    className="text-foreground font-medium text-lg text-left"
+                    className="font-body font-medium text-lg text-left"
+                    style={{ color: "#1b2a54" }}
                   >
                     {link.label}
                   </button>
@@ -161,7 +172,7 @@ const Navbar = () => {
                   <Link
                     to="/my-orders"
                     className="text-foreground font-medium text-lg"
-                    onClick={() => setMobileOpen(false)}
+                    onClick={() => { scrollToTop(); setMobileOpen(false); }}
                   >
                     My Orders
                   </Link>
@@ -176,14 +187,14 @@ const Navbar = () => {
                 <Link
                   to="/auth"
                   className="text-foreground font-medium text-lg"
-                  onClick={() => setMobileOpen(false)}
+                  onClick={() => { scrollToTop(); setMobileOpen(false); }}
                 >
                   Sign In
                 </Link>
               )}
               <button
                 onClick={handleShopClick}
-                className="mt-2 inline-flex items-center justify-center gap-2 bg-lime text-foreground px-5 py-3 rounded-full text-sm font-semibold"
+                className="mt-2 inline-flex items-center justify-center gap-2 bg-lime text-foreground px-5 py-3 rounded-full text-base font-semibold"
               >
                 Shop Now
               </button>

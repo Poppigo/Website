@@ -12,7 +12,7 @@ const features = [
 
 const Features = () => {
   return (
-    <section id="features" className="bg-white py-16 md:py-24">
+    <section id="features" className="bg-[#fff4ee] py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div
           className="text-center mb-12 md:mb-16"
@@ -21,12 +21,15 @@ const Features = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <span className="font-display font-semibold text-sm uppercase tracking-widest" style={{ color: "#4241ff" }}>
+          <span className="font-accent font-semibold text-4xl tracking-widest" style={{ color: "#4241ff" }}>
             What's Poppin'
           </span>
           <h2 className="font-display text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3">
             What Makes PoppiGo Different
           </h2>
+          <p className="text-foreground/50 text-2xl md:text-3xl mt-3 font-body">
+            Japanese Gel Tech + Instant Dryness &nbsp;·&nbsp; No Rashes &nbsp;·&nbsp; No Leaks
+          </p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
@@ -45,7 +48,7 @@ const Features = () => {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: i * 0.08 }}
-                  className="flex items-center gap-4 text-foreground text-lg font-body"
+                  className="flex items-center gap-4 text-foreground text-2xl font-body"
                 >
                   <motion.span
                     className="w-8 h-8 rounded-full bg-lime flex items-center justify-center flex-shrink-0"

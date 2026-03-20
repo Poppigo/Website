@@ -33,13 +33,13 @@ const Products = () => {
     <section id="products" className="bg-peach py-14 md:py-24">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-10 md:mb-14">
-          <span className="text-coral font-display font-semibold text-sm uppercase tracking-widest">
+          <span className="text-coral font-body font-semibold text-base uppercase tracking-widest">
             Your Faves, Our Hits
           </span>
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3">
             Consider these the main characters
           </h2>
-          <p className="text-muted-foreground text-lg mt-3">
+          <p className="text-muted-foreground text-lg mt-3 font-body">
             Available in three sizes
           </p>
         </div>
@@ -68,7 +68,7 @@ const Products = () => {
                   className="w-1/2 h-auto object-contain group-hover:scale-105 transition-transform duration-500"
                 />
                 {discount > 0 && (
-                  <div className="absolute top-4 left-4 bg-coral text-card px-3 py-1 rounded-full text-xs font-bold">
+                  <div className="absolute top-4 left-4 bg-coral text-card px-3 py-1 rounded-full text-sm font-bold">
                     -{discount}%
                   </div>
                 )}
@@ -82,7 +82,7 @@ const Products = () => {
                 <h3 className="font-display font-bold text-foreground text-lg mb-1">
                   {product.name}
                 </h3>
-                <p className="text-muted-foreground text-sm mb-4">
+                <p className="text-muted-foreground text-base mb-4 font-body">
                   {product.pieces}
                 </p>
                 <div className="flex items-center justify-between">
@@ -90,11 +90,11 @@ const Products = () => {
                     <span className="font-display font-bold text-2xl text-coral">
                       ₹{Number(product.price).toLocaleString()}
                     </span>
-                    <span className="text-muted-foreground line-through text-sm">
+                    <span className="text-muted-foreground line-through text-base">
                       ₹{Number(product.original_price).toLocaleString()}
                     </span>
                   </div>
-                  <span className="bg-secondary text-secondary-foreground px-5 py-2.5 rounded-full text-sm font-semibold group-hover:opacity-90 transition-opacity">
+                  <span className="px-5 py-2.5 rounded-full text-base font-semibold group-hover:opacity-90 transition-opacity" style={{ backgroundColor: '#ccff00', color: '#1b2a54' }}>
                     Buy Now
                   </span>
                 </div>

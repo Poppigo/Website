@@ -10,10 +10,10 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
           {/* Brand */}
           <div>
-            <div className="inline-flex items-center bg-white rounded-xl px-3 py-2 mb-3">
-              <img src={logo} alt="PoppiGo" className="h-8 w-auto" />
+            <div className="inline-flex items-center bg-[#fff4ee] rounded-xl px-3 py-2 mb-3">
+              <img src={logo} alt="PoppiGo" className="h-12 w-auto" />
             </div>
-            <p className="text-white/50 text-sm leading-relaxed font-body">
+            <p className="text-white/80 text-base leading-relaxed font-body">
               India's first hygiene brand for active lifestyles. Modern hygiene essentials for women who
               never say no.
             </p>
@@ -21,10 +21,10 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="font-display font-semibold mb-4 text-white/90">
+            <h4 className="font-body font-semibold mb-4 text-white">
               Got Qs? Slide into our inbox
             </h4>
-            <ul className="space-y-2 text-sm text-white/50">
+            <ul className="space-y-2 text-base text-white/80">
               <li>
                 <a
                   href="mailto:hello@poppigo.co"
@@ -43,10 +43,10 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-display font-semibold mb-4 text-white/90">
+            <h4 className="font-body font-semibold mb-4 text-white">
               Policies
             </h4>
-            <ul className="space-y-2 text-sm text-white/50">
+            <ul className="space-y-2 text-base text-white/80">
               <li>
                 <Link to="/shipping" className="hover:text-lime transition-colors">
                   Shipping Info
@@ -72,10 +72,10 @@ const Footer = () => {
 
           {/* Socials */}
           <div>
-            <h4 className="font-display font-semibold mb-4 text-white/90">
+            <h4 className="font-body font-semibold mb-4 text-white">
               Catch us online
             </h4>
-            <ul className="space-y-3 text-sm text-white/50">
+            <ul className="space-y-3 text-base text-white/80">
               <li>
                 <a
                   href="https://www.instagram.com/letspoppigo"
@@ -102,11 +102,11 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-10 pt-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs text-white/30">
+        <div className="border-t border-white/10 mt-10 pt-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-sm text-white/60">
           <p>© 2026 PoppiGo. All rights reserved.</p>
           <p className="text-right leading-relaxed">
             Marketed and Distributed by{" "}
-            <span className="text-white/50">Carenil Essentials Private Limited</span>
+            <span className="text-white/80">Carenil Essentials Private Limited</span>
             <br />
             45, Maker Chambers-III, 223 Nariman Point, Mumbai – 400021
           </p>

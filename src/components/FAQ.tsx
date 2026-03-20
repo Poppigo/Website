@@ -51,7 +51,7 @@ const faqs: FAQ[] = [
 
 const FAQ = () => {
   return (
-    <section id="faq" className="bg-white py-16 md:py-24">
+    <section id="faq" className="bg-[#fff4ee] py-16 md:py-24">
       <div className="max-w-3xl mx-auto px-6">
         <motion.div
           className="text-center mb-10 md:mb-14"
@@ -60,13 +60,13 @@ const FAQ = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <span className="font-display font-semibold text-sm uppercase tracking-widest" style={{ color: "#4241ff" }}>
+          <span className="font-accent font-semibold text-4xl tracking-widest" style={{ color: "#4241ff" }}>
             Have a question?
           </span>
           <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mt-3">
             Fast Answers, Quick Scrolls
           </h2>
-          <p className="text-foreground/50 text-lg mt-3 font-body">
+          <p className="text-foreground/50 text-2xl md:text-3xl mt-3 font-body">
             No essays. No BS. Just facts.
           </p>
         </motion.div>
@@ -78,7 +78,7 @@ const FAQ = () => {
               value={`faq-${i}`}
               className="bg-[#fafff0] border border-lime/20 rounded-2xl px-6 overflow-hidden"
             >
-              <AccordionTrigger className="text-left font-display font-semibold text-foreground text-lg py-5 hover:no-underline">
+              <AccordionTrigger className="text-left font-body font-semibold text-foreground text-lg py-5 hover:no-underline">
                 {faq.q}
               </AccordionTrigger>
               <AccordionContent className="text-foreground/60 text-base leading-relaxed pb-5 font-body">

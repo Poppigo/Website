@@ -3,7 +3,7 @@ import sizeGuide from "@/assets/Section-6-1.jpeg";
 
 const ChooseYourFit = () => {
   return (
-    <section className="bg-white py-16 md:py-24">
+    <section className="bg-[#fff4ee] py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
           {/* Left: Text */}
@@ -13,16 +13,16 @@ const ChooseYourFit = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <span className="font-display font-semibold text-sm uppercase tracking-widest" style={{ color: "#4241ff" }}>
+            <span className="font-accent font-semibold text-4xl tracking-widest" style={{ color: "#4241ff" }}>
               Every Body Inclusive
             </span>
             <h2 className="font-display text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3 leading-tight">
               Choose Your Fit
             </h2>
-            <p className="text-foreground/60 text-lg mt-5 font-body leading-relaxed max-w-lg">
+            <p className="text-foreground/60 text-2xl md:text-3xl mt-5 font-body leading-relaxed max-w-lg">
               Periods don't come in one size — neither should period care.
             </p>
-            <p className="text-foreground/60 text-base mt-4 font-body leading-relaxed max-w-lg">
+            <p className="text-foreground/60 text-lg mt-4 font-body leading-relaxed max-w-lg">
               PoppiGo is every-body inclusive, designed to fit comfortably across different shapes and sizes so you can stay active, confident, and leak-free.
             </p>
 
@@ -34,12 +34,13 @@ const ChooseYourFit = () => {
               ].map((item) => (
                 <div
                   key={item.size}
-                  className="flex items-center gap-4 border-l-4 border-[#6f9f2d] pl-4 py-1"
+                  className="flex items-center gap-4 border-l-4 pl-4 py-1"
+                  style={{ borderColor: "#FF6B35" }}
                 >
-                  <span className="text-[#3b5f0d] font-display font-bold text-sm md:text-base">
+                  <span className="font-display font-bold text-base md:text-lg" style={{ color: "#FF6B35" }}>
                     {item.size}
                   </span>
-                  <span className="text-[#4f6d1f] font-body text-sm md:text-base">
+                  <span className="font-body text-base md:text-lg text-foreground/70">
                     Waist: {item.waist}
                   </span>
                 </div>

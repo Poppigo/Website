@@ -13,7 +13,7 @@ const lifestyleImages = [
 
 const LifestyleSection = () => {
   return (
-    <section className="bg-white py-16 md:py-24">
+    <section className="bg-[#fff4ee] py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div
           className="text-center mb-12"
@@ -23,9 +23,9 @@ const LifestyleSection = () => {
           transition={{ duration: 0.6 }}
         >
           <h2 className="font-display text-3xl md:text-5xl lg:text-6xl font-bold text-foreground">
-            Built For Your <span style={{ color: "#4241ff" }}>Hustle</span>
+            Built For Your <span style={{ color: "#FF6B35" }}>Hustle</span>
           </h2>
-          <p className="text-foreground/60 text-lg md:text-xl mt-4 max-w-4xl mx-auto font-body leading-relaxed">
+          <p className="text-foreground/60 text-2xl md:text-3xl mt-4 max-w-4xl mx-auto font-body leading-relaxed">
             <span className="block">Periods shouldn't slow you down.</span>
             <span className="block md:whitespace-nowrap">PoppiGo is designed to move with you — wherever you want to go.</span>
           </p>
@@ -50,7 +50,7 @@ const LifestyleSection = () => {
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4 right-4">
-                <span className="text-white font-display font-bold text-xl md:text-2xl">
+                <span className="text-white font-body font-bold text-xl md:text-2xl">
                   {item.label}
                 </span>
               </div>
@@ -65,7 +65,7 @@ const LifestyleSection = () => {
           viewport={{ once: true }}
           transition={{ delay: 0.5 }}
         >
-          <div className="flex flex-wrap justify-center items-center gap-3 text-foreground/40 font-display font-medium text-base md:text-lg">
+          <div className="flex flex-wrap justify-center items-center gap-3 text-foreground/40 font-accent font-medium text-2xl md:text-3xl">
             <span>Gym</span>
             <span className="w-1.5 h-1.5 rounded-full bg-lime" />
             <span>Work</span>

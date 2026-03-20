@@ -43,12 +43,12 @@ const SocialProof = () => {
           <h2 className="font-display text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3">
             What Our Fam Says
           </h2>
-          <p className="text-foreground/60 text-lg mt-3 font-body">
-            Real posts from real women living <span className="font-bold text-foreground">NO PAUSE</span>
+          <p className="text-foreground/60 text-2xl md:text-3xl mt-3 font-body">
+            Real posts from real women living <span className="font-bold text-foreground">#NoPause</span>
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8 md:gap-10">
           {featuredReels.map((reel, i) => (
             <motion.div
               key={reel.id}
@@ -56,7 +56,7 @@ const SocialProof = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="bg-white rounded-[2rem] border border-border p-3 md:p-4 hover:shadow-xl hover:shadow-lime/10 transition-all duration-300"
+              className="bg-white rounded-[2rem] border border-border p-5 md:p-6 hover:shadow-xl hover:shadow-lime/10 transition-all duration-300"
             >
               <div className="overflow-hidden rounded-[1.5rem] border border-border bg-[#fafaf7]">
                 <div className="relative w-full pt-[118%] md:pt-[116%]">
@@ -81,7 +81,7 @@ const SocialProof = () => {
           viewport={{ once: true }}
           transition={{ delay: 0.4 }}
         >
-          <p className="text-foreground/60 font-body">
+          <p className="text-2xl text-foreground/60 font-body">
             Want to be featured?{" "}
             <a
               href="https://www.instagram.com/letspoppigo"

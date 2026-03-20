@@ -8,19 +8,18 @@ import productPack from "@/assets/product-pack.png";
 const cards = [
   {
     title: "Available in 3 Sizes",
-    subtitle: "S-M, L-XL, XXL-XXXL",
+    subtitle: "S-M, L-XL, 2XL-3XL",
     image: availSizes,
   },
   {
-    title: "5X Slimmer\n10X Comfort",
-    description: "Ultra-thin design. Maximum protection without bulk",
+    title: "5x Slimmer 10x Comfort",
+    subtitle: "Ultra-thin design. Maximum protection without bulk",
     image: heroProduct,
     featured: true,
   },
   {
-    title: "Buy More. Bleed Less Money",
-    subtitle: "Bundle deals inside",
-    description: "Save more with 2-pack and 3-pack combos",
+    title: "Buy More.\nBleed Less Money",
+    subtitle: "Bundle deals inside\nSave more with 2 and 3-pack combos",
     image: productPack,
   },
 ];
@@ -43,7 +42,7 @@ const LaunchSale = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <span className="font-display font-semibold text-sm uppercase tracking-widest" style={{ color: "#4241ff" }}>
+          <span className="font-accent font-semibold text-4xl tracking-widest" style={{ color: "#4241ff" }}>
             Shop the Stash
           </span>
           <h2 className="font-display text-3xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mt-3">
@@ -63,42 +62,36 @@ const LaunchSale = () => {
               <div
                 onClick={handleShopClick}
                 className={`group relative block rounded-[2rem] overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-lime/10 hover:-translate-y-1.5 ${
-                  card.featured ? "bg-white border border-[#d8e8b2] shadow-md" : "bg-white border border-border shadow-sm"
+                  card.featured ? "bg-[#fff4ee] border border-[#d8e8b2] shadow-md" : "bg-[#fff4ee] border border-border shadow-sm"
                 }`}
               >
                 <div className="relative p-7 md:p-9 flex flex-col h-[370px] sm:h-[420px] md:h-[470px]">
-                  <div className="flex items-start justify-between mb-4">
+                  <div className="relative mb-4">
                     <div>
-                      <h3 className="font-display text-xl md:text-2xl font-bold text-foreground leading-tight whitespace-pre-line">
+                      <h3 className="font-body text-2xl md:text-3xl font-bold text-foreground leading-tight whitespace-pre-line">
                         {card.title}
                       </h3>
                       {card.subtitle && (
-                        <p className="text-sm mt-1 font-body text-foreground/50">
+                        <p className="text-lg md:text-xl mt-1 font-body text-foreground/50 whitespace-pre-line">
                           {card.subtitle}
                         </p>
                       )}
                     </div>
-                    <span className="flex-shrink-0 w-10 h-10 rounded-full border-2 border-foreground/10 flex items-center justify-center group-hover:bg-lime group-hover:border-lime transition-all">
+                    <span className="absolute top-0 -right-6 w-10 h-10 rounded-full border-2 border-foreground/10 flex items-center justify-center group-hover:bg-lime group-hover:border-lime transition-all">
                       <ArrowUpRight className="w-5 h-5 text-foreground" />
                     </span>
                   </div>
 
-                  {card.description && (
-                    <p className="text-foreground/60 text-sm font-body leading-relaxed mb-4">
-                      {card.description}
-                    </p>
-                  )}
-
                   {/* Image */}
-                  {card.title.startsWith("Buy More. Bleed Less") ? (
-                    <div className="absolute bottom-0 -left-[10%] w-[112%] h-[95%] pointer-events-none">
+                  {card.title.startsWith("Buy More.") ? (
+                    <div className="absolute bottom-0 -left-[10%] w-[110%] h-[90%] pointer-events-none">
                       <img
                         src={card.image}
                         alt={card.title}
-                        className="w-full h-full object-contain object-bottom-left group-hover:scale-110 transition-transform duration-300 drop-shadow-lg"
+                        className="w-full h-full object-contain object-bottom-left drop-shadow-lg"
                       />
                     </div>
-                  ) : card.title.startsWith("5X Slimmer") ? (
+                  ) : card.title.startsWith("5x Slimmer") ? (
                     <div className="flex-1 flex items-end justify-center mt-auto">
                       <img
                         src={card.image}

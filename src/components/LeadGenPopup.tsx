@@ -92,7 +92,7 @@ const LeadGenPopup = () => {
         ) : (
           <>
             <h2 className="text-xl font-bold text-foreground mb-1">Stay in the loop!</h2>
-            <p className="text-sm text-muted-foreground mb-5">Get exclusive offers & early access. No spam, we promise.</p>
+            <p className="text-base text-muted-foreground mb-5">Get exclusive offers & early access. No spam, we promise.</p>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="lead-name">Name</Label>
@@ -102,7 +102,7 @@ const LeadGenPopup = () => {
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                 />
-                {errors.name && <p className="text-xs text-destructive mt-1">{errors.name}</p>}
+                {errors.name && <p className="text-sm text-destructive mt-1">{errors.name}</p>}
               </div>
               <div>
                 <Label htmlFor="lead-email">Email</Label>
@@ -113,7 +113,7 @@ const LeadGenPopup = () => {
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                 />
-                {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
+                {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
               </div>
               <div>
                 <Label htmlFor="lead-phone">Phone Number</Label>
@@ -124,7 +124,7 @@ const LeadGenPopup = () => {
                   value={form.mobile_no}
                   onChange={(e) => setForm({ ...form, mobile_no: e.target.value })}
                 />
-                {errors.mobile_no && <p className="text-xs text-destructive mt-1">{errors.mobile_no}</p>}
+                {errors.mobile_no && <p className="text-sm text-destructive mt-1">{errors.mobile_no}</p>}
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Submitting..." : "Submit"}

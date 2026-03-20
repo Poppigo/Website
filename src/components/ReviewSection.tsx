@@ -85,7 +85,7 @@ const ReviewSection = ({ productId }: ReviewSectionProps) => {
       transition={{ duration: 0.5, delay: 0.4 }}
       className="mt-16"
     >
-      <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-8">
+      <h2 className="font-body text-4xl md:text-5xl font-bold mb-8" style={{ color: '#1b2a54' }}>
         Ratings & Reviews
       </h2>
 
@@ -99,17 +99,17 @@ const ReviewSection = ({ productId }: ReviewSectionProps) => {
           <div className="bg-card rounded-2xl border border-border p-6 md:p-8 mb-8 max-w-lg">
             <div className="flex flex-col sm:flex-row gap-8">
               <div className="text-center sm:text-left shrink-0">
-                <p className="font-display text-5xl font-bold text-foreground">
+                <p className="font-body text-5xl font-bold" style={{ color: '#FF6B35' }}>
                   {avgRating > 0 ? avgRating.toFixed(1) : "—"}
                 </p>
                 <StarRating rating={Math.round(avgRating)} size={20} />
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-base text-muted-foreground mt-1">
                   {reviews.length} review{reviews.length !== 1 ? "s" : ""}
                 </p>
               </div>
               <div className="flex-1 space-y-1.5">
                 {ratingDist.map(({ star, count }) => (
-                  <div key={star} className="flex items-center gap-2 text-sm">
+                  <div key={star} className="flex items-center gap-2 text-base">
                     <span className="w-3 text-muted-foreground font-medium">{star}</span>
                     <Star size={12} className="fill-amber-400 text-amber-400 shrink-0" />
                     <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
@@ -134,7 +134,8 @@ const ReviewSection = ({ productId }: ReviewSectionProps) => {
               <p className="text-muted-foreground mb-3">Log in to leave a review</p>
               <Link
                 to="/auth"
-                className="inline-block bg-secondary text-secondary-foreground px-6 py-2.5 rounded-full font-semibold text-sm hover:opacity-90 transition-opacity"
+                className="inline-block px-6 py-2.5 rounded-full font-semibold text-base hover:opacity-90 transition-opacity"
+              style={{ backgroundColor: '#ccff00', color: '#1b2a54' }}
               >
                 Log In
               </Link>
@@ -142,10 +143,11 @@ const ReviewSection = ({ productId }: ReviewSectionProps) => {
           ) : !hasPurchased ? (
             <div className="bg-card rounded-2xl border border-border p-6 text-center mb-8">
               <MessageSquare size={28} className="text-muted-foreground mx-auto mb-2" />
-              <p className="text-muted-foreground mb-3">Purchase this product to leave a review</p>
+              <p className="mb-3" style={{ color: '#1b2a54' }}>Purchase this product to leave a review</p>
               <Link
                 to="/shop"
-                className="inline-block bg-coral text-card px-6 py-2.5 rounded-full font-semibold text-sm hover:opacity-90 transition-opacity"
+                className="inline-block px-6 py-2.5 rounded-full font-semibold text-base hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: '#ccff00', color: '#1b2a54' }}
               >
                 Purchase to Review
               </Link>
@@ -154,7 +156,7 @@ const ReviewSection = ({ productId }: ReviewSectionProps) => {
             <div className="bg-card rounded-2xl border border-border p-6 text-center mb-8">
               <p className="text-muted-foreground">
                 You can leave a review from your{" "}
-                <Link to="/my-orders" className="text-coral font-semibold hover:underline">
+                <Link to="/my-orders" className="font-semibold hover:underline" style={{ color: '#4241ff' }}>
                   My Orders
                 </Link>{" "}
                 page for delivered items.
@@ -183,7 +185,7 @@ const ReviewSection = ({ productId }: ReviewSectionProps) => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <p className="font-display font-bold text-foreground text-sm">
+                          <p className="font-body font-bold text-foreground text-base">
                             {review.customer_name}
                           </p>
                           <div className="flex items-center gap-2 mt-0.5">
@@ -195,7 +197,7 @@ const ReviewSection = ({ productId }: ReviewSectionProps) => {
                             )}
                           </div>
                         </div>
-                        <span className="text-xs text-muted-foreground shrink-0">
+                        <span className="text-sm text-muted-foreground shrink-0">
                           {new Date(review.created_at).toLocaleDateString("en-IN", {
                             day: "numeric",
                             month: "short",
@@ -204,7 +206,7 @@ const ReviewSection = ({ productId }: ReviewSectionProps) => {
                         </span>
                       </div>
                       {review.comment && (
-                        <p className="text-sm text-foreground/80 mt-3 leading-relaxed">
+                        <p className="text-base text-foreground/80 mt-3 leading-relaxed">
                           {review.comment}
                         </p>
                       )}

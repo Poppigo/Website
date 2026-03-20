@@ -12,7 +12,7 @@ const BrandStory = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <span className="font-display font-semibold text-sm uppercase tracking-widest" style={{ color: "#4241ff" }}>
+          <span className="font-accent font-semibold text-4xl tracking-widest" style={{ color: "#4241ff" }}>
             Tea On Us
           </span>
           <h2 className="font-display text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mt-3">
@@ -93,7 +93,7 @@ const BrandStory = () => {
                 <p className="text-foreground font-medium italic">
                   Built from my story, but made for all of us.
                 </p>
-                <p className="font-display font-bold text-xl mt-2 text-foreground">
+                <p className="font-body font-bold text-xl mt-2 text-foreground">
                   In cramps and confidence,<br />
                   <span className="text-2xl">Nilima</span>
                 </p>
