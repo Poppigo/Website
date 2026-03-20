@@ -1,0 +1,25 @@
+project_id = "rtsjqijwwikgfmwrivnz"
+
+[functions.create-checkout]
+verify_jwt = false
+
+[functions.complete-order]
+verify_jwt = false
+
+[functions.create-razorpay-order]
+verify_jwt = false
+
+[functions.verify-razorpay-payment]
+verify_jwt = false
+
+[functions.create-cod-order]
+verify_jwt = false
+
+[functions.complete-cod-order]
+verify_jwt = false
+
+[functions.whatsapp-notify]
+verify_jwt = false
+
+[functions.send-email]
+verify_jwt = false
