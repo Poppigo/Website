@@ -1,1 +1,0 @@
-ALTER TABLE public.orders ADD COLUMN mobile_no text;
