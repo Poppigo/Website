@@ -29,6 +29,8 @@ import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ShippingInfo from "./pages/ShippingInfo";
 import ReturnsPolicy from "./pages/ReturnsPolicy";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import { Navigate } from "react-router-dom";
 
 const queryClient = new QueryClient({
@@ -92,6 +94,8 @@ const App = () => (
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/shipping" element={<ShippingInfo />} />
                 <Route path="/returns" element={<ReturnsPolicy />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

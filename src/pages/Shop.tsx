@@ -135,7 +135,7 @@ const Shop = () => {
   });
 
   return (
-    <div className="min-h-screen bg-[#fff4ee]">
+    <div className="min-h-screen bg-[#f7fbed] overflow-x-hidden">
       <Navbar />
       <div className="pt-24 pb-20">
         <div className="max-w-7xl mx-auto px-6">
@@ -152,7 +152,7 @@ const Shop = () => {
           <div className="flex flex-col gap-10">
             {/* Products Grid */}
             <div className="w-full">
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-8">
                 <p className="text-foreground/50 text-base">
                   {loading ? "Loading..." : `Showing ${filteredProducts.length} of ${products.length} results`}
                 </p>
@@ -174,7 +174,7 @@ const Shop = () => {
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="bg-card border border-border rounded-lg px-3 py-2 text-base text-foreground font-medium"
+                    className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground font-medium max-w-[170px] sm:max-w-none"
                   >
                     <option value="default">Default sorting</option>
                     <option value="latest">Sort by latest</option>

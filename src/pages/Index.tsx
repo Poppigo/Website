@@ -16,7 +16,7 @@ import LeadGenPopup from "@/components/LeadGenPopup";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-[#fff4ee]">
+    <div className="min-h-screen bg-[#f7fbed]">
       <LeadGenPopup />
       <Navbar />
       <Hero />

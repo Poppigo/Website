@@ -33,6 +33,12 @@ const FAQItem = ({ question, answer }: { question: string; answer: string }) => 
 };
 
 // Fallback images mapped by product name keywords
+const sizeWaist: Record<string, string> = {
+  "S-M": '25\u2033 \u2013 35\u2033',
+  "L-XL": '35\u2033 \u2013 45\u2033',
+  "2XL-3XL": '45\u2033 \u2013 55\u2033',
+};
+
 const fallbackImages: Record<string, string> = {
   "1 pack": shopProduct1,
   "pack of 2": shopProduct3,
@@ -158,7 +164,7 @@ const ProductDetail = () => {
 
   if (loading || !product) {
     return (
-      <div className="min-h-screen bg-[#fff4ee]">
+      <div className="min-h-screen bg-[#f7fbed]">
         <Navbar />
         <div className="pt-24 pb-20 flex items-center justify-center min-h-[60vh]">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
@@ -173,7 +179,7 @@ const ProductDetail = () => {
   const sizes = product.sizes || [];
 
   return (
-    <div className="min-h-screen bg-[#fff4ee] pb-24">
+    <div className="min-h-screen bg-[#f7fbed] pb-24">
       <Navbar />
       <div className="pt-24 pb-20">
         <div className="max-w-7xl mx-auto px-6">
@@ -266,7 +272,7 @@ const ProductDetail = () => {
                           return (
                             <div
                               key={`preview-${size}`}
-                              className={`relative w-24 h-24 rounded-xl border-2 overflow-hidden cursor-pointer transition-all flex items-center justify-center ${
+                              className={`relative w-24 h-28 rounded-xl border-2 overflow-hidden cursor-pointer transition-all flex items-center justify-center ${
                                 selectedSize === size
                                   ? "border-[#1b2a54] ring-2 ring-[#ccff3c]"
                                   : "border-gray-200 hover:border-[#1b2a54]/50"
@@ -280,8 +286,11 @@ const ProductDetail = () => {
                                 className="absolute inset-0 w-full h-full object-cover opacity-20"
                               />
                               {/* Size text overlay */}
-                              <div className="relative z-10 font-body font-bold text-base text-center leading-tight">
+                              <div className="relative z-10 font-body font-bold text-sm text-center leading-tight">
                                 {size}
+                                {sizeWaist[size] && (
+                                  <div className="font-bold text-xs mt-0.5 text-foreground/80">{sizeWaist[size]}</div>
+                                )}
                               </div>
                             </div>
                           );
@@ -292,6 +301,9 @@ const ProductDetail = () => {
 
                   <p className="font-body font-bold mb-3 text-base" style={{ color: '#1b2a54' }}>
                     Select Your Size: <span style={{ color: '#FF6B35' }}>{selectedSize}</span>
+                    {selectedSize && sizeWaist[selectedSize] && (
+                      <span className="ml-2 font-bold text-sm text-foreground/70">Waist: {sizeWaist[selectedSize]}</span>
+                    )}
                   </p>
                 </div>
               )}
@@ -300,12 +312,13 @@ const ProductDetail = () => {
               {product.enable_packs && product.pack_links && Object.keys(product.pack_links).length > 0 && (
                 <div className="mb-6">
                   <p className="font-body font-bold mb-3 text-base" style={{ color: '#1b2a54' }}>Choose Pack Size:</p>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {Object.entries(product.pack_links).map(([packName, link]) => {
                       if (!link) return null;
                       const getDiscountInfo = (pack: string) => {
                         if (pack === "Pack of 2") return { discount: "10%" };
                         if (pack === "Pack of 3") return { discount: "15%" };
+                        if (pack === "Pack of 4") return { discount: "20%" };
                         return null;
                       };
                       const discountInfo = getDiscountInfo(packName);
@@ -393,7 +406,7 @@ const ProductDetail = () => {
                     { emoji: "✨", label: "Ultra-Slim Fit" },
                     { emoji: "🌿", label: "Rash-Free Comfort" },
                   ].map(({ emoji, label }) => (
-                    <div key={label} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl" style={{ backgroundColor: '#fff4ee' }}>
+                    <div key={label} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl" style={{ backgroundColor: '#f7fbed' }}>
                       <span className="text-xl leading-none">{emoji}</span>
                       <span className="font-body text-sm font-semibold text-foreground">{label}</span>
                     </div>
@@ -442,7 +455,7 @@ const ProductDetail = () => {
 
           {/* FAQ Section */}
           <div className="mt-12 mb-2">
-            <h2 className="font-display text-4xl md:text-5xl font-bold mb-1" style={{ color: '#4241ff' }}>Frequently Asked Questions</h2>
+            <h2 className="font-display text-4xl md:text-5xl font-bold mb-1" style={{ color: '#4241ff' }}>FAQs</h2>
             <p className="text-2xl md:text-3xl mb-5 font-accent" style={{ color: '#4241ff' }}>Everything you need to know before you switch</p>
             <div className="divide-y" style={{ borderColor: '#e5e7eb' }}>
               {[
@@ -499,6 +512,8 @@ const ProductDetail = () => {
                     src={src}
                     controls
                     playsInline
+                    autoPlay
+                    muted
                     preload="metadata"
                     className="w-full h-96 object-cover bg-black"
                   />

@@ -498,7 +498,7 @@ const Checkout = () => {
                   <div className="flex flex-col gap-2">
                     {[
                       { id: "upi", label: "UPI", icon: Smartphone },
-                      { id: "card", label: "Debit / Credit Cards", icon: CreditCard },
+                      { id: "card", label: "Cards", icon: CreditCard },
                       { id: "wallet", label: "Wallets", icon: Wallet },
                       { id: "netbanking", label: "Netbanking", icon: Building2 },
                       { id: "emi", label: "EMI", icon: Zap },

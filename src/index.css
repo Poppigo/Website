@@ -109,7 +109,7 @@
     --navy: 230 20% 15%;
     --navy-foreground: 0 0% 100%;
     --cream: 0 0% 100%;
-    --peach: 80 40% 96%;
+    --peach: 77 64% 96%;
     --coral: 72 100% 45%;
 
     --sidebar-background: 0 0% 98%;
@@ -165,6 +165,7 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;
     color: #1b2a54 !important;
+    word-spacing: 0.15em;
   }
 
   footer h1, footer h2, footer h3, footer h4, footer h5, footer h6 {
@@ -182,6 +183,10 @@
 }
 
 @layer utilities {
+  .font-display {
+    word-spacing: 0.15em;
+  }
+
   .text-gradient-lime {
     background: linear-gradient(135deg, hsl(72, 100%, 50%), hsl(85, 90%, 55%));
     -webkit-background-clip: text;

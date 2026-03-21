@@ -1243,7 +1243,7 @@ const Admin = () => {
                 <div className="space-y-3 pl-6 border-l-2 border-border">
                   <Label>Pack Links</Label>
                   <div className="grid grid-cols-1 gap-3">
-                    {["Pack of 1", "Pack of 2", "Pack of 3"].map((pack) => (
+                    {["Pack of 1", "Pack of 2", "Pack of 3", "Pack of 4"].map((pack) => (
                       <div key={pack} className="flex items-center gap-3">
                         <Label className="w-20 text-sm">{pack}</Label>
                         <Input
