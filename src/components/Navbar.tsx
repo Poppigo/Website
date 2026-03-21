@@ -12,6 +12,7 @@ const navLinks = [
   { label: "Tea On Us", href: null, section: "story" },
   { label: "Facts Only", href: null, section: "faq" },
   { label: "Hit Us Up", href: null, section: "footer" },
+  { label: "Blog", href: "/blog", section: null },
 ];
 
 const Navbar = () => {
@@ -44,6 +45,12 @@ const Navbar = () => {
     navigate("/shop");
   };
 
+  const handleNavClick = (href: string) => {
+    setMobileOpen(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    navigate(href);
+  };
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -60,7 +67,7 @@ const Navbar = () => {
             link.href ? (
               <button
                 key={link.label}
-                onClick={handleShopClick}
+                onClick={() => handleNavClick(link.href!)}
                 className="text-base font-body font-medium transition-colors"
                 style={{ color: "#1b2a54" }}
               >
@@ -150,7 +157,7 @@ const Navbar = () => {
                 link.href ? (
                   <button
                     key={link.label}
-                    onClick={handleShopClick}
+                    onClick={() => handleNavClick(link.href!)}
                     className="font-body font-medium text-lg text-left"
                     style={{ color: "#1b2a54" }}
                   >

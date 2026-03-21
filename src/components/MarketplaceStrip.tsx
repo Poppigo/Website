@@ -39,7 +39,7 @@ const MarketplaceStrip = () => {
         transition={{ duration: 0.6 }}
       >
         <div className="font-body text-3xl md:text-4xl font-bold" style={{ color: '#ccff3c' }}>
-          PoppiGo — available wherever you shop
+          POPPIGO — AVAILABLE WHEREVER YOU SHOP
         </div>
         <p className="text-2xl md:text-3xl mt-2 font-body" style={{ color: '#ccff3c', opacity: 0.75 }}>
           Shop PoppiGo on your favorite apps.

@@ -62,29 +62,32 @@ const LaunchSale = () => {
               <div
                 onClick={handleShopClick}
                 className={`group relative block rounded-[2rem] overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-lime/10 hover:-translate-y-1.5 ${
-                  card.featured ? "bg-[#fff4ee] border border-[#d8e8b2] shadow-md" : "bg-[#fff4ee] border border-border shadow-sm"
+                  card.featured ? "bg-[#f7fbed] border border-[#d8e8b2] shadow-md" : "bg-[#f7fbed] border border-border shadow-sm"
                 }`}
               >
                 <div className="relative p-7 md:p-9 flex flex-col h-[370px] sm:h-[420px] md:h-[470px]">
-                  <div className="relative mb-4">
+                  {/* Neon background for image area */}
+                  <div className="absolute bottom-0 left-0 right-0 h-[100%] bg-[#c8ff00] rounded-b-[2rem] z-0" />
+
+                  <div className="relative mb-4 z-10">
                     <div>
                       <h3 className="font-body text-2xl md:text-3xl font-bold text-foreground leading-tight whitespace-pre-line">
                         {card.title}
                       </h3>
                       {card.subtitle && (
-                        <p className="text-lg md:text-xl mt-1 font-body text-foreground/50 whitespace-pre-line">
+                        <p className="text-lg md:text-xl mt-1 font-body font-semibold text-foreground/50 whitespace-pre-line">
                           {card.subtitle}
                         </p>
                       )}
                     </div>
-                    <span className="absolute top-0 -right-6 w-10 h-10 rounded-full border-2 border-foreground/10 flex items-center justify-center group-hover:bg-lime group-hover:border-lime transition-all">
+                    <span className="absolute top-0 -right-6 w-10 h-10 rounded-full border-2 border-foreground/10 flex items-center justify-center transition-all">
                       <ArrowUpRight className="w-5 h-5 text-foreground" />
                     </span>
                   </div>
 
                   {/* Image */}
                   {card.title.startsWith("Buy More.") ? (
-                    <div className="absolute bottom-0 -left-[10%] w-[110%] h-[90%] pointer-events-none">
+                    <div className="absolute bottom-0 -left-[10%] w-[105%] h-[85%] pointer-events-none z-10">
                       <img
                         src={card.image}
                         alt={card.title}
@@ -92,7 +95,7 @@ const LaunchSale = () => {
                       />
                     </div>
                   ) : card.title.startsWith("5x Slimmer") ? (
-                    <div className="flex-1 flex items-end justify-center mt-auto">
+                    <div className="flex-1 flex items-end justify-center mt-auto z-10">
                       <img
                         src={card.image}
                         alt={card.title}
@@ -100,7 +103,7 @@ const LaunchSale = () => {
                       />
                     </div>
                   ) : (
-                    <div className="flex-1 flex items-end justify-center mt-auto">
+                    <div className="flex-1 flex items-end justify-center mt-auto z-10">
                       <img
                         src={card.image}
                         alt={card.title}

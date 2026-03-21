@@ -11,7 +11,7 @@ const FinalCTA = () => {
   };
 
   return (
-    <section className="bg-[#fff4ee] py-20 md:py-28 relative overflow-hidden">
+    <section className="bg-[#f7fbed] py-20 md:py-28 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div
           className="text-center"

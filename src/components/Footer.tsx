@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
           {/* Brand */}
           <div>
-            <div className="inline-flex items-center bg-[#fff4ee] rounded-xl px-3 py-2 mb-3">
+            <div className="inline-flex items-center bg-[#f7fbed] rounded-xl px-3 py-2 mb-3">
               <img src={logo} alt="PoppiGo" className="h-12 w-auto" />
             </div>
             <p className="text-white/80 text-base leading-relaxed font-body">

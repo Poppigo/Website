@@ -1,18 +1,22 @@
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import layersImage from "@/assets/layers.png";
 
 const features = [
   "Ultra Slim Design",
   "Japanese Gel for Faster Absorption",
-  "Leakproof Protection",
+  "Leakproof",
   "Rash-Free Material",
   "Flexible Fit for Active Days",
+  "Upto 12 Hours Protection",
 ];
 
 const Features = () => {
+  const navigate = useNavigate();
+  const goToShop = () => { window.scrollTo({ top: 0, behavior: "smooth" }); navigate("/shop"); };
   return (
-    <section id="features" className="bg-[#fff4ee] py-16 md:py-24">
+    <section id="features" className="bg-[#f7fbed] py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div
           className="text-center mb-12 md:mb-16"
@@ -28,7 +32,7 @@ const Features = () => {
             What Makes PoppiGo Different
           </h2>
           <p className="text-foreground/50 text-2xl md:text-3xl mt-3 font-body">
-            Japanese Gel Tech + Instant Dryness &nbsp;·&nbsp; No Rashes &nbsp;·&nbsp; No Leaks
+            Japanese Gel Tech = Instant Dryness &nbsp;·&nbsp; No Rashes &nbsp;·&nbsp; No Leaks
           </p>
         </motion.div>
 
@@ -78,7 +82,8 @@ const Features = () => {
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.15 }}
-              className="w-full max-w-md md:max-w-lg"
+              className="w-full max-w-md md:max-w-lg cursor-pointer"
+              onClick={goToShop}
             >
               <img
                 src={layersImage}

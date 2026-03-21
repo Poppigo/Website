@@ -39,7 +39,7 @@ const HomepageTestimonials = () => {
   }, []);
 
   return (
-    <section id="testimonials" className="bg-[#fff4ee] py-16 md:py-24">
+    <section id="testimonials" className="bg-[#f7fbed] py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div
           className="text-center mb-10 md:mb-14"

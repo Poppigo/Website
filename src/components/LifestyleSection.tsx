@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import pgActive3 from "@/assets/Copy of PG Active 3.png";
 import pgoingPlaces from "@/assets/Copy of PGo-ing places.jpg";
 import pgActive2 from "@/assets/Copy of PG Active 2.jpg";
@@ -12,8 +13,10 @@ const lifestyleImages = [
 ];
 
 const LifestyleSection = () => {
+  const navigate = useNavigate();
+  const goToShop = () => { window.scrollTo({ top: 0, behavior: "smooth" }); navigate("/shop"); };
   return (
-    <section className="bg-[#fff4ee] py-16 md:py-24">
+    <section className="bg-[#f7fbed] py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div
           className="text-center mb-12"
@@ -39,7 +42,8 @@ const LifestyleSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="group relative overflow-hidden rounded-2xl md:rounded-3xl"
+              className="group relative overflow-hidden rounded-2xl md:rounded-3xl cursor-pointer"
+              onClick={goToShop}
             >
               <div className="aspect-[4/5] md:aspect-[11/13] overflow-hidden">
                 <img
@@ -68,9 +72,9 @@ const LifestyleSection = () => {
           <div className="flex flex-wrap justify-center items-center gap-3 text-foreground/40 font-accent font-medium text-2xl md:text-3xl">
             <span>Gym</span>
             <span className="w-1.5 h-1.5 rounded-full bg-lime" />
-            <span>Work</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-lime" />
             <span>Travel</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-lime" />
+            <span>Work</span>
             <span className="w-1.5 h-1.5 rounded-full bg-lime" />
             <span>Everyday Life</span>
           </div>

@@ -26,7 +26,7 @@ const pickRandomReels = (items: string[], count: number) => {
 const featuredReels = pickRandomReels(reels, 4).map((url, index) => ({
   id: `${index}-${url.split("/").filter(Boolean).pop()}`,
   url,
-  embedUrl: `${url}embed`,
+  embedUrl: `${url}embed/?hidecaption=true&autoplay=1&muted=1`,
 }));
 
 const SocialProof = () => {
@@ -48,7 +48,7 @@ const SocialProof = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8 md:gap-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {featuredReels.map((reel, i) => (
             <motion.div
               key={reel.id}
@@ -56,19 +56,17 @@ const SocialProof = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="bg-white rounded-[2rem] border border-border p-5 md:p-6 hover:shadow-xl hover:shadow-lime/10 transition-all duration-300"
+              className="overflow-hidden rounded-2xl border border-border bg-[#fafaf7]"
             >
-              <div className="overflow-hidden rounded-[1.5rem] border border-border bg-[#fafaf7]">
-                <div className="relative w-full pt-[118%] md:pt-[116%]">
-                  <iframe
-                    src={reel.embedUrl}
-                    title={`Instagram Reel ${i + 1}`}
-                    className="absolute inset-0 w-full h-full"
-                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                    allowFullScreen
-                    loading="lazy"
-                  />
-                </div>
+              <div className="relative w-full pt-[177%]">
+                <iframe
+                  src={reel.embedUrl}
+                  title={`Reel ${i + 1}`}
+                  className="absolute inset-0 w-full h-full"
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                  allowFullScreen
+                  loading="lazy"
+                />
               </div>
             </motion.div>
           ))}

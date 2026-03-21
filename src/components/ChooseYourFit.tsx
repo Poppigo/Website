@@ -1,9 +1,12 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import sizeGuide from "@/assets/Section-6-1.jpeg";
 
 const ChooseYourFit = () => {
+  const navigate = useNavigate();
+  const goToShop = () => { window.scrollTo({ top: 0, behavior: "smooth" }); navigate("/shop"); };
   return (
-    <section className="bg-[#fff4ee] py-16 md:py-24">
+    <section className="bg-[#f7fbed] py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
           {/* Left: Text */}
@@ -59,7 +62,8 @@ const ChooseYourFit = () => {
             <img
               src={sizeGuide}
               alt="PoppiGo Size Guide"
-              className="w-full max-w-lg rounded-3xl shadow-xl"
+              className="w-full max-w-lg rounded-3xl shadow-xl cursor-pointer"
+              onClick={goToShop}
             />
           </motion.div>
         </div>
